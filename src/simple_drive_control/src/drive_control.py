@@ -146,7 +146,7 @@ pub_stop_start = rospy.Publisher(
     "manual_control/stop_start",
     Int16,
     queue_size=100)
-pub_speed = rospy.Publisher("manual_control/speed", Int16, queue_size=100)
+pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
 pub_steering = rospy.Publisher(
     "steering",
     UInt8,
