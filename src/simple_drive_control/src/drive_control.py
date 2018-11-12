@@ -67,7 +67,7 @@ def drive(distance, command, speed, angle):
             distance)
         return
 
-    pub_info.publish("BUSY")
+    #pub_info.publish("BUSY")
     if is_active:
         rospy.logwarn(
             "%s: Warning, another command is still active! Please wait and try again.",
