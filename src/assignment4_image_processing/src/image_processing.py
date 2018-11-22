@@ -1,20 +1,9 @@
 #!/usr/bin/env python
-import roslib
-# roslib.load_manifest('my_package')
 import sys
-import rospy
 import cv2
-from std_msgs.msg import String
-from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Point
-from geometry_msgs.msg import Quaternion
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
 from matplotlib import pyplot as plt
       
 def main(args):
-    rospy.init_node('assignment4_image_proccesing', anonymous=True)
-    
     cv_image = cv2.imread("points_lab_measured.png")
     #=====================================
     #make it gray
@@ -40,7 +29,7 @@ def main(args):
     ncols = 1
     
     #index starts at 1 in the upper left corner and increases to the right
-    for i in xrange(3):
+    for i in xrange(2):
         plt.subplot(nrows, ncols, i+1),plt.imshow(images[i],'gray')
         plt.title(titles[i])
         plt.xticks([]),plt.yticks([])
@@ -60,7 +49,6 @@ def main(args):
     
     print("Total found:", len(white_points))
     print("Coordinates: ", white_points)
-
     #=====================================
     #Task 5: Compute the extrinsic parameters
     
@@ -75,16 +63,13 @@ def main(args):
     k2 = - 0.1089
     p1 = 0
     p2 = 0
-
     #Matrixes
     camera_mat = np.zeros((3,3,1))
     camera_mat[:,:,0] = np.array([[fx, 0, cx],
                                   [0, fy, cy],
                                   [0, 0, 1]])
-
     dist_coeffs = np.zeros((4,1))
     dist_coeffs[:,0] = np.array([[k1, k2, p1, p2]])
-
     # far to close, left to right (order of discovery) in cm
     obj_points = np.zeros((6,3,1))
     obj_points[:,:,0] = np.array([[00.0, 00.0, 0],
@@ -93,21 +78,16 @@ def main(args):
                                   [22.2, 30.0, 0],
                                   [00.0, 60.0, 0],
                                   [22.0, 60.0, 0]])
-    
+    #Estimate the initial camera pose as if the intrinsic parameters have been already known. 
+    #This is done using solvePnP().
     retval, rvec, tvec = cv2.solvePnP(obj_points, img_points,camera_mat, dist_coeffs)
     
     rmat = np.zeros((3,3))
     cv2.Rodrigues(rvec, rmat, jacobian=0)
-
-    #Estimate the initial camera pose as if the intrinsic parameters have been already known. 
-    #This is done using solvePnP().
-    
-    '''
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down")
+    '''    
+    cv2.waitKey()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    main(sys.argv)
+   main(sys.argv)
+   
