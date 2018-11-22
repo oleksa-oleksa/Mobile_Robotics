@@ -26,23 +26,21 @@ def main(args):
     images = [cv_image, gray, thresh1]
 
     cv2.imshow('threshold',thresh1)
-    
+    cv2.waitKey()
     print("Done")
     
-
     #=====================================
     #Task 4: Find the white points in the image
     white_points = []
     height, width = thresh1.shape
-    for i in range(height):
-        for j in range(width):
-            if thresh1[i, j] == 255:
+    for j in range(height):
+        for i in range(width):
+            if thresh1[j, i] == 255:
                 white_points.append((i, j))
     
     print("Total found:", len(white_points))
     print("Coordinates: ", white_points)
 
-    
     #=====================================
     #Task 5: Compute the extrinsic parameters
     #Define a 3x3 cv::Mat matrix for the intrinsic parameters and use the following numbers:
@@ -65,19 +63,54 @@ def main(args):
     dist_coeffs[:,0] = np.array([[k1, k2, p1, p2]])
     # far to close, left to right (order of discovery) in cm
     obj_points = np.zeros((6,3,1))
+
     obj_points[:,:,0] = np.array([[00.0, 00.0, 0],
-                                  [21.8, 00.0, 0],
-                                  [00.0, 30.0, 0],
-                                  [22.2, 30.0, 0],
-                                  [00.0, 60.0, 0],
-                                  [22.0, 60.0, 0]])
+                                  [40.0, 00.0, 0],
+                                  [00.0, 28.0, 0],
+                                  [40.0, 27.0, 0],
+                                  [00.0, 56.0, 0],
+                                  [40.0, 55.5, 0]])
     #Estimate the initial camera pose as if the intrinsic parameters have been already known. 
     #This is done using solvePnP().
-    retval, rvec, tvec = cv2.solvePnP(obj_points, white_points, camera_mat, dist_coeffs)
-    '''
+    white_points_array = np.array(white_points)
+    # convert to np.float32
+    white_points_float = np.float32(white_points_array)
+    # define criteria and apply kmeans()
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    K = 6
+    ret,label,center = cv2.kmeans(white_points_float, K, None, criteria,10,
+                                  cv2.KMEANS_PP_CENTERS)
+    
+    for c in center:
+        cv2.circle(cv_image, tuple(c), 4, (255, 0, 0), 2)
+        
+    cv2.imshow('threshold',cv_image)
+    
+    print("Clusters centers: ", center)
+    print("objects centers: ", obj_points)
+    
+    _, rvec, tvec = cv2.solvePnP(obj_points, center, camera_mat, dist_coeffs)
+    
+    #=====================================
+    #Task 5: Finding the camera location and orientation
     rmat = np.zeros((3,3))
     cv2.Rodrigues(rvec, rmat, jacobian=0)
-    '''    
+    
+    print("The world coordinate system's origin in camera's coordinate system:")
+    print("=== camera rvec:")
+    print(rvec)
+    print("=== camera rmat:")
+    print(rmat)
+    print("=== camera tvec:")
+    print(tvec)
+    
+    print("The camera origin in world coordinate system:")
+    print("=== camera rmat:")
+    print(rmat.T)
+    print("=== camera tvec:")
+    print(-np.dot(rmat.T, tvec))
+    
+    #=====================================
     cv2.waitKey()
     cv2.destroyAllWindows()
 
