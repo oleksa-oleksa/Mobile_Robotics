@@ -2,9 +2,10 @@
 import sys
 import cv2
 from matplotlib import pyplot as plt
+import numpy as np
       
 def main(args):
-    cv_image = cv2.imread("points_lab_measured.png")
+    cv_image = cv2.imread("points_lab_measured.jpeg")
     #=====================================
     #make it gray
     #Task 2: obtain the RGB image from the camera and transform it to gray
@@ -23,35 +24,27 @@ def main(args):
 
     titles = ['Original Image', 'GRAY','BINARY']
     images = [cv_image, gray, thresh1]
-    
-    #PLOT
-    nrows = 2
-    ncols = 1
-    
-    #index starts at 1 in the upper left corner and increases to the right
-    for i in xrange(2):
-        plt.subplot(nrows, ncols, i+1),plt.imshow(images[i],'gray')
-        plt.title(titles[i])
-        plt.xticks([]),plt.yticks([])
-    
-    plt.show()
-    print("Done")
 
-    '''
+    cv2.imshow('threshold',thresh1)
+    
+    print("Done")
+    
+
     #=====================================
     #Task 4: Find the white points in the image
     white_points = []
-    height, width = thres1.shape
+    height, width = thresh1.shape
     for i in range(height):
         for j in range(width):
-            if thres1[i, j] == 255:
+            if thresh1[i, j] == 255:
                 white_points.append((i, j))
     
     print("Total found:", len(white_points))
     print("Coordinates: ", white_points)
+
+    
     #=====================================
     #Task 5: Compute the extrinsic parameters
-    
     #Define a 3x3 cv::Mat matrix for the intrinsic parameters and use the following numbers:
     fx = 614.1699
     fy = 614.9002
@@ -80,8 +73,8 @@ def main(args):
                                   [22.0, 60.0, 0]])
     #Estimate the initial camera pose as if the intrinsic parameters have been already known. 
     #This is done using solvePnP().
-    retval, rvec, tvec = cv2.solvePnP(obj_points, img_points,camera_mat, dist_coeffs)
-    
+    retval, rvec, tvec = cv2.solvePnP(obj_points, white_points, camera_mat, dist_coeffs)
+    '''
     rmat = np.zeros((3,3))
     cv2.Rodrigues(rvec, rmat, jacobian=0)
     '''    
