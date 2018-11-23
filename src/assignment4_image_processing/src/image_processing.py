@@ -61,9 +61,6 @@ def main(args):
     bi_gray_min = 245
     ret,thresh1=cv2.threshold(gray, bi_gray_min, bi_gray_max, cv2.THRESH_BINARY);
 
-    titles = ['Original Image', 'GRAY','BINARY']
-    images = [cv_image, gray, thresh1]
-
     cv2.imshow('threshold',thresh1)
     cv2.waitKey()
     print("Done")
