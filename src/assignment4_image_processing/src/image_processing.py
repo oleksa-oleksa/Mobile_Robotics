@@ -167,5 +167,4 @@ def main(args):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-   main(sys.argv)
-   
+    main(sys.argv)
