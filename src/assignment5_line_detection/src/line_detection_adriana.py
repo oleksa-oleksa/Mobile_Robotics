@@ -95,7 +95,7 @@ if __name__ == '__main__':
     m1, b1 = ransac_method(seg1)
     print("Equation line 1: y1 = %fx + %f" % (m1, b1))
     m2, b2 = ransac_method(seg2)
-    print("Equation line 1: y2 = %fx + %f" % (m2, b2))
+    print("Equation line 2: y2 = %fx + %f" % (m2, b2))
 
     line1 = end_start_points(m1, b1, img.shape[1])
     line2 = end_start_points(m2, b2, img.shape[1])
