@@ -5,22 +5,7 @@ import sys
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
-
-def region_of_interest(img, vertices):
-    mask = np.zeros_like(img)
-    channel_count = img.shape[2]
-    match_mask_color = (255,) * channel_count
-    cv2.fillPoly(mask, vertices, match_mask_color)
-    masked_image = cv2.bitwise_and(img, mask)
-    return masked_image
-
-def region_of_interest_vertices(img):
-    width, height, _ = img.shape
-    return [
-        (0, height),
-        (width / 2, height / 2),
-        (width, height),
-  ]
+from cmath import rect
 
 def detect_line(img, edges, color):
     # copy for OpenCV GBR 
@@ -28,7 +13,7 @@ def detect_line(img, edges, color):
     found = np.copy(img) 
     
     # This returns an array of r and theta values 
-    lines = cv2.HoughLines(edges, 2, np.pi/180, 200) 
+    lines = cv2.HoughLines(edges, 2, np.pi/180, 150) 
     # The below for loop runs till r and theta values  
     # are in the range of the 2d array 
     only_lines = np.full(found.shape, (255, 255, 255), dtype=np.uint8)
@@ -69,7 +54,8 @@ def detect_line(img, edges, color):
         cv2.line(only_lines,(x1,y1), (x2,y2), (255,0,0),2)
            
     # All the changes made in the input image are finally written on a new image
-    file_name = 'linesDetected_' + color + '.jpg'  
+    file_name = 'linesDetected_' + color + '.jpg'
+    img = cv2.cvtColor(img_red, cv2.COLOR_BGR2RGB)  
     cv2.imwrite(file_name, img_red) 
 
     return found, only_lines
@@ -83,85 +69,66 @@ def plot_images(titles, images):
         plt.title(titles[i])
         plt.xticks([]),plt.yticks([])
     
-    plt.show()
-    
-#==========================================
-def draw_lines(img, lines, color=[255, 0, 0], thickness=3):
-    # If there are no lines to draw, exit.
-    if lines is None:
-        return
-    # Make a copy of the original image.
-    img = np.copy(img)
-    # Create a blank image that matches the original in size.
-    line_img = np.zeros(
-        (
-            img.shape[0],
-            img.shape[1],
-            3
-        ),
-        dtype=np.uint8,
-    )
-    # Loop over all lines and draw them on the blank image.
-    for line in lines:
-        for x1, y1, x2, y2 in line:
-            cv2.line(line_img, (x1, y1), (x2, y2), color, thickness)
-    # Merge the image with the lines onto the original.
-    img = cv2.addWeighted(img, 0.8, line_image, 1.0, 0.0)
-    # Return the modified image.
-    return img
+    plt.show()    
 
 #========================================== 
 def main(args):
-    img = cv2.imread("lines2.png", 1)
-    img = cv2.resize(img, (1000, 800))
-    
+    img = cv2.imread("lines1.jpg", cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
     #=======================================
+    # Solution 1
     # Detect line on grayscale image
     # Convert the img to grayscale 
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) 
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
     # Apply edge detection method on the image
-    threshold1 = 50
-    threshold2 = 250
+    threshold1 = 120
+    threshold2 = 150
     apertureSize = 2
     edges = cv2.Canny(gray, threshold1, threshold2, apertureSize) 
-    plt.figure()
-    plt.imshow(edges)
-    plt.show()
+    # Fill the 2/5 of picture with a black color
+    h, w = edges.shape
+    cv2.rectangle(edges, (0,0), (w, 2*h/5), 0, cv2.FILLED)
+    
     found, lines = detect_line(img, edges, '01grey')
     titles = ('original', 'edges', 'mapped', 'lines')
     images = (gray, edges, found, lines)
     plot_images(titles, images)
-    '''
+    
     #=====================================
-    # Defining the Region of Interest
-    # Shape: a triangle that begins at the bottom left corner of the image, 
-    # proceeds to the center of the image at the horizon, and then follows another edge to the bottom right corner of the image. 
-    cropped_image = region_of_interest(
-    img,
-    np.array(
-        region_of_interest_vertices(img),
-        np.int32
-        ),
-    )
-    gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_RGB2GRAY)
-    cannyed_image = cv2.Canny(gray_image, 200, 300)
+    # Solution 2
+    # Using bitwise_and 
+    # Take each frame
+    # Convert BGR to HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    lines = cv2.HoughLinesP(
-    cannyed_image,
-    rho=6,
-    theta=np.pi / 60,
-    threshold=160,
-    lines=np.array([]),
-    minLineLength=40,
-    maxLineGap=25
-    )
+    #define range of white
+    sensitivity = 100
+    lower_white = np.array([0, 0, 255 - sensitivity])
+    upper_white = np.array([255, sensitivity, 255])
     
-    line_image = draw_lines(img, lines) # <---- Add this call.
-    plt.figure()
-    plt.imshow(line_image)
-    plt.show()
-    '''
+    # Threshold the HSV image to get only blue colors
+    mask = cv2.inRange(hsv, lower_white, upper_white)
+    
+    # Bitwise-AND mask and original image
+    res = cv2.bitwise_and(img, img, mask= mask)
+    # Apply edge detection method on the image
+    threshold1 = 50
+    threshold2 = 200
+    apertureSize = 3
+    
+    edges = cv2.Canny(res, threshold1, threshold2, apertureSize) 
+   
+    # Fill the 2/5 of picture with a black color
+    h, w = edges.shape
+    cv2.rectangle(edges, (0,0), (w, 2*h/5), 0, cv2.FILLED)
+   
+    found, lines = detect_line(img, edges, '02hsv')
+    titles = ('mask', 'bitwise_and', 'edges', 'mapped')
+    images = (mask, res, edges, found)
+    plot_images(titles, images)
+            
     #=====================================
     cv2.waitKey()
     cv2.destroyAllWindows()
