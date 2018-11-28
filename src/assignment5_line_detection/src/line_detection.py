@@ -4,9 +4,7 @@ import sys
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
-from cmath import rect
 from sklearn import linear_model
-
 
 def detect_line(img, edges, color):
     # copy for OpenCV GBR 
