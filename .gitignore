@@ -8,4 +8,4 @@ logs/
 .metadata/
 .project
 .pydevproject
-.pyc
+*.pyc
