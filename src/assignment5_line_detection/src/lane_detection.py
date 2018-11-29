@@ -13,12 +13,16 @@ from sklearn import linear_model
 
 class lane_detection:
     def __init__(self):
-        self.lane_detection_pub = rospy.Publisher("/image_processing/bin_img",Image, queue_size=1)
+        # Test Unit with a picture
+        self.img = cv2.imread("lines1.jpg", 1)
+        
+        self.lane_detection_pub = rospy.Publisher("/image_processing/lane", Image, queue_size=1)
         
         self.bridge = CvBridge()
-        self.lane_detection_sub = rospy.Subscriber("image_raw_subscriber", Float32, callback)
+        self.lane_detection_sub = rospy.Subscriber("/camera/color/image_raw/Image", Image, self.callback, queue_size=1)
  
     def callback(self, data):
+        '''
         try:
             img = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
@@ -53,9 +57,11 @@ class lane_detection:
         line2 = ld.end_start_points(m2, b2, img.shape[1])
     
         ransac_lines = ld.show_lines(img, line1, line2)
-        
+        '''
         try:
-            self.image_pub.publish(self.bridge.cv2_to_imgmsg(ransac_lines, "mono8"))
+            #self.image_pub.publish(self.bridge.cv2_to_imgmsg(ransac_lines, "mono8"))
+            img = self.bridge.cv2_to_imgmsg(self.img, "rgb8")
+            self.lane_detection_pub.publish(img)
         except CvBridgeError as e:
             print(e)
     
