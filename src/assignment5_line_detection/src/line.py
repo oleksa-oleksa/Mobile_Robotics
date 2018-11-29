@@ -80,8 +80,12 @@ def line_segments(img):
     (_, contours, _) = cv2.findContours(img.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:2]
 
-    return contours[0], contours[1]
-
+    try:
+        
+        return contours[0], contours[1]
+    except:
+        
+        "No photo", "No photo"
 
 def ransac_method(contour):
     """
