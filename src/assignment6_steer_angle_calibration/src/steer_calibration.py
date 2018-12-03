@@ -59,7 +59,7 @@ def parse_xml(file_name):
 #==========================
 def main():
     
-    file_name = 'SteerAngleActuator_03Dec.xml'
+    file_name = 'SteerAngleActuator_03Dec_adriana.xml'
     commands = parse_xml(file_name)
      
     plt.figure()
