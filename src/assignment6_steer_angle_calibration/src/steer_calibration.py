@@ -18,9 +18,7 @@ def ransac_method(commands):
 
     ransac = linear_model.RANSACRegressor()
     
-    # called with no intervening modifications to the dictionary, the lists will directly correspond.
-    
-    # We need to fing the corresponding commands (y-axis) for functio
+    # We need to fing the corresponding commands (y-axis) for function
     angles_x = []
     commands_y = []
     
@@ -61,13 +59,13 @@ def parse_xml(file_name):
 #==========================
 def main():
     
-    file_name = 'SteerAngleActuator_test.xml'
+    file_name = 'SteerAngleActuator_03Dec.xml'
     commands = parse_xml(file_name)
      
     plt.figure()
     plt.xlabel('Angles in grad')
     plt.ylabel('Commands')
-    plt.plot(map(math.degrees, commands.values()), commands.keys(), 'rx')
+    plt.plot(list(map(math.degrees, commands.values())), commands.keys(), 'rx')
     plt.show()
     
     global slope, intercept
