@@ -22,6 +22,8 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
 from assignment7_line_detection_pd_control.msg import Line
+import math
+from numpy import arctan
 
 class pd_controller:
     def __init__(self):
@@ -31,10 +33,14 @@ class pd_controller:
         self.control_variable = None
         self.kp = 0.5
         self.kd = 1.2
+        self.counter = 0
         
     def callback(self, data):
-        slope = data.slope
-        intercept = data.intercept
+        # counter to eliminate the oscillation
+        self.counter += 1 
+        
+        slope_line = data.slope
+        intercept_line = data.intercept
         
         camera_height = data.height
         camera_width = data.width
@@ -47,7 +53,8 @@ class pd_controller:
         # y1 = h / 2 (horizontal line in the middle of camera)
         # y2 = slope * x + intercept
         # y1 = y2 = (camera_height / 2 - intercept) / k
-        current_position = (camera_height / 2 - intercept) / slope
+        line_height = camera_height / 2
+        current_position = (line_height - intercept_line) / slope_line
         
         last_pd_error = self.pd_error
         
@@ -66,14 +73,28 @@ class pd_controller:
         #Calculate the control variable
         control_variable = self.kp * self.pd_error + self.kd * self.derivative
         
-        # move a car
+        opposite_side = self.pd_error
+        adjacent_side = line_height
+        angle = math.degrees(arctan(opposite_side / adjacent_side))
         
+        if self.counter > 20:
+            # move a car
+            # positive control_variable: turn left with positive angle value
+            if control_variable > 0:
+                actuator_command = st.get_actuator_command(angle)
+            
+            # negative control_variable: turn right with negative angle value
+            elif control_variable < 0:
+                actuator_command = st.get_actuator_command(-angle)
+         
 
 
 def main(args):
     rospy.init_node('pd_controller', anonymous=True)
-    commands = st.calibrate_steer()
+    st.calibrate_steer()
+    
     pd_controller = pd_controller()
+    
     try:
         rospy.spin()
     except KeyboardInterrupt:
