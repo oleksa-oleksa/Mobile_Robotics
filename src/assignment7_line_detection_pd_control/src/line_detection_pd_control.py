@@ -54,7 +54,7 @@ class pd_controller:
         # y2 = slope * x + intercept
         # y1 = y2 = (camera_height / 2 - intercept) / k
         line_height = camera_height / 2
-        current_position = (line_height - intercept_line) / slope_line
+        current_position = (line_height - slope_line) / intercept_line
         
         last_pd_error = self.pd_error
         
