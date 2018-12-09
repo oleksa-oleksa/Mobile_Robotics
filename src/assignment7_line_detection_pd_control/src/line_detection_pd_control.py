@@ -37,7 +37,9 @@ class pd_controller:
         
     def callback(self, data):
         # counter to eliminate the oscillation
-        self.counter += 1 
+        if self.counter < 20:
+            self.counter += 1 
+            return
         
         slope_line = data.slope
         intercept_line = data.intercept
@@ -76,18 +78,17 @@ class pd_controller:
         opposite_side = self.pd_error
         adjacent_side = line_height
         angle = math.degrees(arctan(opposite_side / adjacent_side))
-        
-        if self.counter > 20:
-            # move a car
-            # positive control_variable: turn left with positive angle value
-            if control_variable > 0:
-                actuator_command = st.get_actuator_command(angle)
-            
-            # negative control_variable: turn right with negative angle value
-            elif control_variable < 0:
-                actuator_command = st.get_actuator_command(-angle)
-         
+      
+        # move a car
+        # positive control_variable: turn left with positive angle value
+        if control_variable > 0:
+            actuator_command = st.get_actuator_command(angle)
 
+        # negative control_variable: turn right with negative angle value
+        elif control_variable < 0:
+            actuator_command = st.get_actuator_command(-angle)
+         
+        self.counter = 0
 
 def main(args):
     rospy.init_node('pd_controller', anonymous=True)
