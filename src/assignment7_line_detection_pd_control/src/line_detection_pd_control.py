@@ -44,20 +44,20 @@ class PDController:
         self.pub_forward_right = rospy.Publisher("simple_drive_control/forward_right", Drive, queue_size=10)
         self.pub_actuator_commands = rospy.Publisher("pd_controller/actuator_commands", Int32, queue_size=10)
         
-        self.pd_error = None
-        self.derivative = None
-        self.control_variable = None
+        self.pd_error = 0
+        self.derivative = 0
+        self.control_variable = 0
         self.kp = 0.5
         self.kd = 1.2
         self.counter = 0
 
         # PD will be activated when the drive command will be sent via ROS Service
-        self.activated = False
+        self.activated = True
         # Driving will be enabled after first movement
         self.enabled = False
         
         self.drive_msg = Drive()
-        self.drive_msg.distance = 0.0
+        self.drive_msg.distance = 0.0001
         self.drive_msg.angle = 0
         self.drive_msg.speed_rpm = 0
         self.speed_rpm = 200
@@ -67,7 +67,7 @@ class PDController:
         # when the drive command will be sent via ROS Service and first movement will be completed
         if not self.activated:
             return
-        
+
         # counter to eliminate the oscillation
         self.counter += 1 
         
@@ -108,7 +108,8 @@ class PDController:
         opposite_side = self.pd_error
         adjacent_side = line_height
         angle = math.degrees(arctan(opposite_side / adjacent_side))
-      
+        print("Angle in grad: ", angle)
+        
         # Speed will be enabled after PD will be tested in Lab
         if not self.enabled:
             self.drive_msg.speed_rpm = 0
@@ -117,50 +118,57 @@ class PDController:
         
         # move a car
         # positive control_variable: turn left with positive angle value
-        
-        if control_variable > 0:
-            actuator_command = steer.get_actuator_command(angle)
-            self.drive_msg.angle = actuator_command
-            self.pub_forward_left.publish(self.drive_msg)
-            self.pub_actuator_commands.publish(actuator_command)
-            self.counter = 0
 
-        # negative control_variable: turn right with negative angle value
-        elif control_variable < 0:
-            actuator_command = steer.get_actuator_command(-angle)
-            self.drive_msg.angle = actuator_command
-            self.pub_forward_right.publish(self.drive_msg)
-            self.pub_actuator_commands.publish(actuator_command)
-            self.counter = 0
+        if self.counter > 20:
+    
+            if control_variable > 0:
+                actuator_command = steer.get_actuator_command(angle)
+                self.drive_msg.angle = actuator_command
+                print("Actuator command: ", self.drive_msg.angle)
+                self.pub_forward_right.publish(self.drive_msg)
+                self.pub_actuator_commands.publish(actuator_command)
+                self.counter = 0
+    
+            # negative control_variable: turn right with negative angle value
+            elif control_variable < 0:
+                actuator_command = steer.get_actuator_command(-angle)
+                self.drive_msg.angle = actuator_command
+                print("Actuator command: ", self.drive_msg.angle)
+                self.pub_forward_left.publish(self.drive_msg)
+                self.pub_actuator_commands.publish(actuator_command)
+                self.counter = 0
+                
+            elif control_variable == 0:
+                actuator_command = steer.get_actuator_command(0)
+                self.drive_msg.angle = actuator_command                
+                print("Actuator command: ", self.drive_msg.angle)
+                self.pub_forward_straight.publish(self.drive_msg)
+                self.pub_actuator_commands.publish(actuator_command)
+                self.counter = 0
+                self.enabled = False
+                self.activated = False
             
-        elif control_variable == 0:
-            actuator_command = steer.get_actuator_command(0)
-            self.drive_msg.angle = actuator_command
-            self.pub_forward_straight.publish(self.drive_msg)
-            self.pub_actuator_commands.publish(actuator_command)
-            self.counter = 0
-            self.enabled = False
-            self.activated = False
-        
-
+    
 def callbackDrivingControl(msg):
     last_driving_control_info = msg.data
 
-def callbackDriveForward(request):
+def callbackDriveForward(req):
     rospy.loginfo(rospy.get_caller_id())
+    print("PD status is started...")
 
     # PD-controller will start to work and move a car
     pd_controller.activated = True
     pd_controller.enabled = False # set to true after steer testing without driving
+
+pd_controller = PDController()
+
 
 def main(args):
     print("PD Node launched")
     rospy.init_node('pd_controller', anonymous=True)
 
     steer.calibrate_steer()
-        
-    pd_controller = PDController()
-
+    
     # place the car in initial position and start service
     # in terminal: rosservice call /pd_controller/drive_start
     sub_drive_start = rospy.Service("pd_controller/drive_start", CarMovement, callbackDriveForward)

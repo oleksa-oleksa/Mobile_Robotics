@@ -9,6 +9,11 @@ from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
+from assignment7_line_detection_pd_control.msg import Line
+from assignment7_line_detection_pd_control.msg import Drive
+from assignment7_line_detection_pd_control.srv import CarMovement
+
+
 # --- definitions ---
 epsilon = 0.05   # allowed inaccuracy for distance calculation
 speed_rpm = 200

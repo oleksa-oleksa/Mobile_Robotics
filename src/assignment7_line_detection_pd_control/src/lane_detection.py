@@ -56,7 +56,7 @@ class lane_detection:
         seg = ld.line_segments(mask)
     
         slope, intercept = ld.ransac_method(seg)
-        print("Equation line: y1 = %fx + %f" % (slope, intercept))
+        #print("Equation line: y1 = %fx + %f" % (slope, intercept))
         
         #creating the custom message
         line_parameters = Line()
