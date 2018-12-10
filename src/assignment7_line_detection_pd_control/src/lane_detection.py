@@ -61,23 +61,20 @@ class lane_detection:
                 
         segs = ld.line_segments(mask, 1)
      
-        m1, b1 = ld.ransac_method(segs[0])
-        print("Equation line: y1 = %fx + %f" % (m1, b1))
-#         m2, b2 = ld.ransac_method(seg2)
-#         print("Equation line 2: y2 = %fx + %f" % (m2, b2))
-#     
-        line1 = ld.end_start_points(m1, b1, img.shape[1])
-#         line2 = ld.end_start_points(m2, b2, img.shape[1])
-#         
-#         #creating the custom message
-#         line_parameters = Line()
-#         line_parameters.slope = m1
-#         line_parameters.intercept = b1
-#         line_parameters.height = img.shape[0]
-#         line_parameters.width = img.shape[1]
-#                 
-        ransac_lines = ld.show_lines(img, [line1])
-#         
+        m, b = ld.ransac_method(segs[0])
+        print("Equation line: y1 = %fx + %f" % (m, b))
+        line = ld.end_start_points(m, b, img.shape[1])
+
+        print(type(m), type(b))
+        #creating the custom message
+        line_parameters = Line()
+        line_parameters.slope = m
+        line_parameters.intercept = b
+        line_parameters.height = img.shape[0]
+        line_parameters.width = img.shape[1]
+                         
+        ransac_lines = ld.show_lines(img, [line])
+         
 #         cv2.imwrite('detected.jpg', ransac_lines)
              
                     
@@ -85,7 +82,7 @@ class lane_detection:
             # Ransac 
             img = self.bridge.cv2_to_imgmsg(ransac_lines, "rgb8")
             self.lane_detection_pub.publish(img)
-#             self.line_parameters_pub.publish(line_parameters)
+            self.line_parameters_pub.publish(line_parameters)
              
         except CvBridgeError as e:
             print(e)

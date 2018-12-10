@@ -101,9 +101,7 @@ def ransac_method(contour):
     ransac.fit(x, y)
     b = ransac.estimator_.intercept_
     m = ransac.estimator_.coef_
-
-    return m, b
-
+    return m[0][0], b[0]
 
 def end_start_points(m, b, width):
     """
@@ -125,7 +123,9 @@ def show_lines(img, lines):
     img = img.copy()
     
     for line in lines:
-        cv2.line(img, line[0], line[1], (255, 0, 0), 5)
+        l0 = tuple(int(c) for c in line[0])
+        l1 = tuple(int(c) for c in line[1])
+        cv2.line(img, l0, l1, (255, 0, 0), 5)
 
     return img
 
