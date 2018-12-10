@@ -39,7 +39,7 @@ class lane_detection:
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         # define range of color in HSV
-        sensitivity = 100
+        sensitivity = 20
         lower = np.array([0, 0, 255 - sensitivity])
         upper = np.array([255, sensitivity, 255])
     

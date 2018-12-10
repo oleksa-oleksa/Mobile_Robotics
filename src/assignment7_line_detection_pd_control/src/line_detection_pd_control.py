@@ -119,6 +119,7 @@ class PDController:
         # move a car
         # positive control_variable: turn left with positive angle value
 
+        print("Control variable: ", control_variable)
         if self.counter > 20:
     
             if control_variable > 0:
