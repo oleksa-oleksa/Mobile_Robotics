@@ -1,4 +1,4 @@
 float32 slope
 float32 intercept
-int height
-int width
+int32 height
+int32 width

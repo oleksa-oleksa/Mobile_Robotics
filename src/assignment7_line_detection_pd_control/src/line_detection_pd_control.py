@@ -22,6 +22,8 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
 from assignment7_line_detection_pd_control.msg import Line
+from assignment7_line_detection_pd_control.srv import *
+
 import math
 from numpy import arctan
 
@@ -54,7 +56,7 @@ class pd_controller:
         # y2 = slope * x + intercept
         # y1 = y2 = (camera_height / 2 - intercept) / k
         line_height = camera_height / 2
-        current_position = (line_height - slope_line) / intercept_line
+        current_position = (line_height - intercept_line) / slope_line
         
         last_pd_error = self.pd_error
         
@@ -95,6 +97,15 @@ def main(args):
     st.calibrate_steer()
     
     pd_controller = pd_controller()
+    
+    # create subscribers and publishers
+sub_info = rospy.Subscriber(
+    "simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
+sub_backward_longitudinal = rospy.Service(
+    "drive_circle/backward_longitudinal",
+    ParkingManeuver,
+    callbackBackwardLongitudinal)
+
     
     try:
         rospy.spin()
