@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 The Algorithm:
 * Launch the lane_detection node and get the line equation with Ransac (assignment 6). 
@@ -148,18 +149,21 @@ def callbackDrivingControl(msg):
 def callbackDriveForward(request):
     rospy.loginfo(rospy.get_caller_id())
 
-    # we will move 1% of desired distance just straight
-    # and then the PD-controller will start to work and move a car
-    pd_controller.pub_forward_straight.publish(pd_controller.drive_msg)
+    # PD-controller will start to work and move a car
     pd_controller.activated = True
-    pd_controller.enabled = False # set to true after steer testing wothout driving
+    pd_controller.enabled = False # set to true after steer testing without driving
 
 def main(args):
     rospy.init_node('pd_controller', anonymous=True)
 
     steer.calibrate_steer()
-    
+        
     pd_controller = pd_controller()
+
+    # place the car in initial position and start service
+    # in terminal: rosservice call /pd_controller/drive_start
+    sub_drive_start = rospy.Service("pd_controller/drive_start", CarMovement, callbackDriveForward)
+    print("bla")
     
     rospy.loginfo(rospy.get_caller_id() + ": started!")
 

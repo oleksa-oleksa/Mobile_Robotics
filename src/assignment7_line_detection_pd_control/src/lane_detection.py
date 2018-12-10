@@ -74,7 +74,7 @@ class lane_detection:
             # Ransac 
             img = self.bridge.cv2_to_imgmsg(ransac_lines, "rgb8")
             self.lane_detection_pub.publish(img)
-            self.line_parameters_pub(line_parameters)
+            self.line_parameters_pub.publish(line_parameters)
             
         except CvBridgeError as e:
             print(e)
