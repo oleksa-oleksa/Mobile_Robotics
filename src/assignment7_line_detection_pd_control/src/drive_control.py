@@ -13,7 +13,7 @@ from std_msgs.msg import String
 epsilon = 0.05   # allowed inaccuracy for distance calculation
 speed_rpm = 200
 #angle_left = 30
-#angle_left = 65
+angle_left = 65
 angle_straight = 90
 angle_right = 150
 last_odom = None
@@ -34,27 +34,27 @@ def waitForFirstOdom():
 
 
 def callbackForward(msg):
-    drive(msg.data, "callbackForward", speed_rpm, angle_straight)
+    drive(msg.distance, "callbackForward", msg.speed_rpm, msg.angle)
 
 
 def callbackBackward(msg):
-    drive(msg.data, "callbackBackward", -speed_rpm, angle_straight)
+    drive(msg.distance, "callbackBackward", -msg.speed_rpmm, msg.angle)
 
 
 def callbackForwardLeft(msg):
-    drive(msg.data, "callbackForwardLeft", speed_rpm, angle_left)
+    drive(msg.distance, "callbackForwardLeft", msg.speed_rpm, msg.angle)
 
 
 def callbackForwardRight(msg):
-    drive(msg.data, "callbackForwardRight", speed_rpm, angle_right)
+    drive(msg.distance, "callbackForwardRight", msg.speed_rpm, msg.angle)
 
 
 def callbackBackwardLeft(msg):
-    drive(msg.data, "callbackBackwardLeft", -speed_rpm, angle_left)
+    drive(msg.distance, "callbackBackwardLeft", -msg.speed_rpm, msg.angle)
 
 
 def callbackBackwardRight(msg):
-    drive(msg.data, "callbackBackwardRight", -speed_rpm, angle_right)
+    drive(msg.distance, "callbackBackwardRight", -msg.speed_rpm, msg.angle)
 
 
 def drive(distance, command, speed, angle):
