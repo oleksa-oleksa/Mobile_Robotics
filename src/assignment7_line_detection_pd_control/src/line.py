@@ -70,7 +70,7 @@ def plot_images(titles, images):
     
     plt.show()  
     
-def line_segments(img):
+def line_segments(img, limit=2):
     """
     Get two lines by finding the outlines of the mask
     :param img:
@@ -78,14 +78,10 @@ def line_segments(img):
     """
 
     (_, contours, _) = cv2.findContours(img.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:2]
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-    try:
-        
-        return contours[0]
-    except:
-        
-        "No photo", "No photo"
+    return contours[:limit]
+
 
 def ransac_method(contour):
     """
@@ -124,9 +120,13 @@ def end_start_points(m, b, width):
     return ((y1,x1),(y2,x2))
 
 
-def show_lines(img, line1):
+def show_lines(img, lines):
     
-    img = cv2.line(img, line1[0], line1[1], (255, 0, 0), 5)
+    img = img.copy()
+    
+    for line in lines:
+        cv2.line(img, line[0], line[1], (255, 0, 0), 5)
+
     return img
 
 #========================================== 
