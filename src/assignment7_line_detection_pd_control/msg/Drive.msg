@@ -1,3 +1,2 @@
 float32 distance
----
-string info
+int32 angle

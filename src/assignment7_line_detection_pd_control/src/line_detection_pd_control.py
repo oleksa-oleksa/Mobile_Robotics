@@ -10,8 +10,9 @@ The Algorithm:
 '''
 
 #imports from previous assignments
-import line as ln
-import steer_calibration as st
+import line as line
+import steer_calibration as steer
+from simple_drive_control.src import drive_control as drive
 
 #python imports
 import sys
@@ -21,23 +22,44 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
-from assignment7_line_detection_pd_control.msg import Line
-from assignment7_line_detection_pd_control.srv import *
-
+from std_msgs.msg import Float32
+from std_msgs.msg import String
 import math
 from numpy import arctan
+
+from assignment7_line_detection_pd_control.msg import Line
+from assignment7_line_detection_pd_control.msg import Drive
+from assignment7_line_detection_pd_control.srv import CarMovement
 
 class pd_controller:
     def __init__(self):
         self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
+        self.sub_info = rospy.Subscriber("simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
+        self.sub_drive = rospy.Service("pd_controller/drive_forward", CarMovement, callbackDriveForward)
+    
+        self.pub_forward_straight = rospy.Publisher("simple_drive_control/forward", Drive, queue_size=10)
+        self.pub_forward_left = rospy.Publisher("simple_drive_control/forward_left", Drive, queue_size=10)
+        self.pub_forward_right = rospy.Publisher("simple_drive_control/forward_right", Drive, queue_size=10)
+
         self.pd_error = None
         self.derivative = None
         self.control_variable = None
         self.kp = 0.5
         self.kd = 1.2
+        self.speed_rpm = 200
         self.counter = 0
+        self.distance = 0
+        # PD will be activated when the drive command will be sent via ROS Service
+        self.activated = False
+        # Driving will be enabled after first movement
+        self.enabled = False
         
     def callback(self, data):
+        # PD controller only will start to work
+        # when the drive command will be sent via ROS Service and first movement will be completed
+        if self.activated == False:
+            return
+        
         # counter to eliminate the oscillation
         self.counter += 1 
         
@@ -79,34 +101,55 @@ class pd_controller:
         adjacent_side = line_height
         angle = math.degrees(arctan(opposite_side / adjacent_side))
       
+        if self.enabled == False:
+            return
+        
         # move a car
         # positive control_variable: turn left with positive angle value
+        maneuver = self.distance * 0.1
+        
         if control_variable > 0:
-            actuator_command = st.get_actuator_command(angle)
+            actuator_command = steer.get_actuator_command(angle)
             
             self.counter = 0
         # negative control_variable: turn right with negative angle value
         elif control_variable < 0:
-            actuator_command = st.get_actuator_command(-angle)
+            actuator_command = steer.get_actuator_command(-angle)
          
             self.counter = 0
+            
+        elif control_variable == 0:
+            actuator_command = steer.get_actuator_command(0)
+            Drive.angle = actuator_command
+            self.pub_forward_straight(Drive)
+        
+        self.distance = self.distance - maneuver    
+        Drive.distance = self.distance    
          
+
+
+def callbackDrivingControl(msg):
+    last_driving_control_info = msg.data
+
+def callbackDriveForward(request):
+    rospy.loginfo(rospy.get_caller_id() + ": callbackDriveForward, distance = " + request.distance)
+
+    # we will move 1% of desired distance just straight
+    # and then the PD-controller will start to work and move a car
+    pd_controller.pub_forward_straight.publish(request.distance * 0.01)
+    pd_controller.distance = request.distance * 0.99
+    pd_controller.activated = True
+    pd_controller.enabled = False # set to true after steer testing wothout driving
 
 def main(args):
     rospy.init_node('pd_controller', anonymous=True)
-    st.calibrate_steer()
+
+    steer.calibrate_steer()
     
     pd_controller = pd_controller()
     
-    # create subscribers and publishers
-sub_info = rospy.Subscriber(
-    "simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
-sub_backward_longitudinal = rospy.Service(
-    "drive_circle/backward_longitudinal",
-    ParkingManeuver,
-    callbackBackwardLongitudinal)
+    rospy.loginfo(rospy.get_caller_id() + ": started!")
 
-    
     try:
         rospy.spin()
     except KeyboardInterrupt:
@@ -115,5 +158,3 @@ sub_backward_longitudinal = rospy.Service(
     
 if __name__ == '__main__':
     main(sys.argv)
-
-
