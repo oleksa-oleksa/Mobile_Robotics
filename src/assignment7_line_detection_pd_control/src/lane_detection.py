@@ -23,19 +23,17 @@ class lane_detection:
         self.lane_detection_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback, queue_size=1)
  
     def callback(self, data):
-        '''
+        
         try:
-            Camera 
-            print("Camera case")
-            img = self.bridge.imgmsg_to_cv2(data, "rgb8")
-            
+            # Camera 
+            img = self.bridge.imgmsg_to_cv2(data, "rgb8") 
         except CvBridgeError as e:
             print(e)
-        '''
-        # Test
-        print("Test case")
-        img = cv2.imread('one_line.jpg', 1)
         
+        # Test
+#         print("Test case")
+#         img = cv2.imread('one_line.jpg', 1)
+#         
         # Crop 20% of the image along the y axis
         y_end = np.shape(img)[0]
         y_start = (np.shape(img)[0] * 0.2)
@@ -62,10 +60,9 @@ class lane_detection:
         segs = ld.line_segments(mask, 1)
      
         m, b = ld.ransac_method(segs[0])
-        print("Equation line: y1 = %fx + %f" % (m, b))
+#         print("Equation line: y1 = %fx + %f" % (m, b))
         line = ld.end_start_points(m, b, img.shape[1])
 
-        print(type(m), type(b))
         #creating the custom message
         line_parameters = Line()
         line_parameters.slope = m
@@ -74,9 +71,6 @@ class lane_detection:
         line_parameters.width = img.shape[1]
                          
         ransac_lines = ld.show_lines(img, [line])
-         
-#         cv2.imwrite('detected.jpg', ransac_lines)
-             
                     
         try:
             # Ransac 

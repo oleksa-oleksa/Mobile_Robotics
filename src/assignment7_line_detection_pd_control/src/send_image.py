@@ -8,8 +8,8 @@ from sensor_msgs.msg import Image
 
 def main():
     rospy.init_node("whoop_woop", anonymous=True)
-    assert len(sys.argv) == 2
-    image_path = sys.argv[1]
+    # assert len(sys.argv) == 2
+    image_path = 'one_line.jpg' # sys.argv[1]
     print("Sending {}".format(image_path))
     im = cv2.imread(image_path)
     bridge = CvBridge()
