@@ -127,7 +127,7 @@ def end_start_points(m, b, width):
 def show_lines(img, line1):
     
     img = img.copy()
-    cv2.line(img, line1[0], line1[1], (255, 0, 0), 5)
+    img = cv2.line(img, line1[0], line1[1], (255, 0, 0), 5)
     return img
 
 #========================================== 

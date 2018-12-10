@@ -131,17 +131,17 @@ sub_odom = rospy.Subscriber("odom", Odometry, callbackOdom, queue_size=100)
 # wait for first odometry message, till adverting subscription of commands
 waitForFirstOdom()
 sub_forward = rospy.Subscriber(
-    "simple_drive_control/forward", Float32, callbackForward, queue_size=10)
+    "simple_drive_control/forward", Drive, callbackForward, queue_size=10)
 sub_backward = rospy.Subscriber(
-    "simple_drive_control/backward", Float32, callbackBackward, queue_size=10)
+    "simple_drive_control/backward", Drive, callbackBackward, queue_size=10)
 sub_forward_left = rospy.Subscriber(
-    "simple_drive_control/forward_left", Float32, callbackForwardLeft, queue_size=10)
+    "simple_drive_control/forward_left", Drive, callbackForwardLeft, queue_size=10)
 sub_forward_right = rospy.Subscriber(
-    "simple_drive_control/forward_right", Float32, callbackForwardRight, queue_size=10)
+    "simple_drive_control/forward_right", Drive, callbackForwardRight, queue_size=10)
 sub_backward_left = rospy.Subscriber(
-    "simple_drive_control/backward_left", Float32, callbackBackwardLeft, queue_size=10)
+    "simple_drive_control/backward_left", Drive, callbackBackwardLeft, queue_size=10)
 sub_backward_right = rospy.Subscriber(
-    "simple_drive_control/backward_right", Float32, callbackBackwardRight, queue_size=10)
+    "simple_drive_control/backward_right", Drive, callbackBackwardRight, queue_size=10)
 
 pub_stop_start = rospy.Publisher(
     "manual_control/stop_start",

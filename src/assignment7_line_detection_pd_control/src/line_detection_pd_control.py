@@ -13,7 +13,7 @@ The Algorithm:
 #imports from previous assignments
 import line as line
 import steer_calibration as steer
-import drive_control as drive
+import rospy
 
 #python imports
 import sys
@@ -33,7 +33,7 @@ from assignment7_line_detection_pd_control.msg import Line
 from assignment7_line_detection_pd_control.msg import Drive
 from assignment7_line_detection_pd_control.srv import CarMovement
 
-class pd_controller:
+class PDController:
     def __init__(self):
         self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
         self.sub_info = rospy.Subscriber("simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
@@ -57,7 +57,7 @@ class pd_controller:
         self.enabled = False
         
         self.drive_msg = Drive()
-        self.drive_msg.distance = 0
+        self.drive_msg.distance = 0.0
         self.drive_msg.angle = 0
         self.drive_msg.speed_rpm = 0
         self.speed_rpm = 200
@@ -65,7 +65,7 @@ class pd_controller:
     def callback(self, data):
         # PD controller only will start to work
         # when the drive command will be sent via ROS Service and first movement will be completed
-        if self.activated == False:
+        if not self.activated:
             return
         
         # counter to eliminate the oscillation
@@ -110,9 +110,9 @@ class pd_controller:
         angle = math.degrees(arctan(opposite_side / adjacent_side))
       
         # Speed will be enabled after PD will be tested in Lab
-        if self.enabled == False:
+        if not self.enabled:
             self.drive_msg.speed_rpm = 0
-        elif self.enabled == True:
+        elif self.enabled:
             self.drive_msg.speed_rpm = self.speed_rpm
         
         # move a car
@@ -154,16 +154,17 @@ def callbackDriveForward(request):
     pd_controller.enabled = False # set to true after steer testing without driving
 
 def main(args):
+    print("PD Node launched")
     rospy.init_node('pd_controller', anonymous=True)
 
     steer.calibrate_steer()
         
-    pd_controller = pd_controller()
+    pd_controller = PDController()
 
     # place the car in initial position and start service
     # in terminal: rosservice call /pd_controller/drive_start
     sub_drive_start = rospy.Service("pd_controller/drive_start", CarMovement, callbackDriveForward)
-    print("bla")
+    print("rosservice call /pd_controller/drive_start to start PD controller")
     
     rospy.loginfo(rospy.get_caller_id() + ": started!")
 

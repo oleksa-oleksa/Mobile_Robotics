@@ -57,7 +57,7 @@ def parse_xml(file_name):
     return commands
 
 def calibrate_steer():
-    file_name = 'SteerAngleActuator_03Dec_adriana.xml'
+    file_name = '/home/oleksandra/Documents/catkin_ws_user/src/assignment7_line_detection_pd_control/src/SteerAngleActuator_03Dec_adriana.xml'
     commands = parse_xml(file_name)
     
     global slope_steer, intercept_steer
