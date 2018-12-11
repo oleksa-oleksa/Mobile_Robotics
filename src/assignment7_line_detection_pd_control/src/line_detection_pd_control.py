@@ -29,8 +29,7 @@ from std_msgs.msg import String
 import math
 from numpy import arctan
 
-from assignment7_line_detection_pd_control.msg import Line
-from assignment7_line_detection_pd_control.msg import Drive
+from assignment7_line_detection_pd_control.msg import Line, Drive
 from assignment7_line_detection_pd_control.srv import CarMovement
 
 class PDController:
@@ -47,8 +46,8 @@ class PDController:
         self.pd_error = 0
         self.derivative = 0
         self.control_variable = 0
-        self.kp = 0.5
-        self.kd = 1.2
+        self.kp = 0.005
+        self.kd = 0.99
         self.counter = 0
 
         # PD will be activated when the drive command will be sent via ROS Service
@@ -56,10 +55,6 @@ class PDController:
         # Driving will be enabled after first movement
         self.enabled = False
         
-        self.drive_msg = Drive()
-        self.drive_msg.distance = 0.0001
-        self.drive_msg.angle = 0
-        self.drive_msg.speed_rpm = 0
         self.speed_rpm = 200
         
     def callback(self, data):
@@ -109,12 +104,17 @@ class PDController:
         adjacent_side = line_height
         angle = math.degrees(arctan(opposite_side / adjacent_side))
         print("Angle in grad: ", angle)
+
+        drive_msg = Drive()
+        drive_msg.distance = 0.0001
+        drive_msg.angle = 0
+        drive_msg.speed_rpm = 0
         
         # Speed will be enabled after PD will be tested in Lab
         if not self.enabled:
-            self.drive_msg.speed_rpm = 0
+            drive_msg.speed_rpm = 0
         elif self.enabled:
-            self.drive_msg.speed_rpm = self.speed_rpm
+            drive_msg.speed_rpm = self.speed_rpm
         
         # move a car
         # positive control_variable: turn left with positive angle value
@@ -124,26 +124,26 @@ class PDController:
     
             if control_variable > 0:
                 actuator_command = steer.get_actuator_command(angle)
-                self.drive_msg.angle = actuator_command
-                print("Actuator command: ", self.drive_msg.angle)
-                self.pub_forward_right.publish(self.drive_msg)
+                drive_msg.angle = actuator_command
+                print("Actuator command: ", drive_msg.angle)
+                self.pub_forward_right.publish(drive_msg)
                 self.pub_actuator_commands.publish(actuator_command)
                 self.counter = 0
     
             # negative control_variable: turn right with negative angle value
             elif control_variable < 0:
                 actuator_command = steer.get_actuator_command(-angle)
-                self.drive_msg.angle = actuator_command
-                print("Actuator command: ", self.drive_msg.angle)
-                self.pub_forward_left.publish(self.drive_msg)
+                drive_msg.angle = actuator_command
+                print("Actuator command: ", drive_msg.angle)
+                self.pub_forward_left.publish(drive_msg)
                 self.pub_actuator_commands.publish(actuator_command)
                 self.counter = 0
                 
             elif control_variable == 0:
                 actuator_command = steer.get_actuator_command(0)
-                self.drive_msg.angle = actuator_command                
-                print("Actuator command: ", self.drive_msg.angle)
-                self.pub_forward_straight.publish(self.drive_msg)
+                drive_msg.angle = actuator_command                
+                print("Actuator command: ", drive_msg.angle)
+                self.pub_forward_straight.publish(drive_msg)
                 self.pub_actuator_commands.publish(actuator_command)
                 self.counter = 0
                 self.enabled = False
@@ -181,7 +181,6 @@ def main(args):
         rospy.spin()
     except KeyboardInterrupt:
         print("Shutting down")
-    cv2.destroyAllWindows()    
     
 if __name__ == '__main__':
     main(sys.argv)

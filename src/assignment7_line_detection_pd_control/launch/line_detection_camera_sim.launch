@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
-        <node name="whoop_whoop" pkg="assignment7_line_detection_pd_control"
-                type="send_image.py" output="screen">
-        </node>
-
-	<node name="pd_controller" pkg="assignment7_line_detection_pd_control"
+        <node name="pd_controller" pkg="assignment7_line_detection_pd_control"
 		type="line_detection_pd_control.py" output="screen">
 	</node>
 	
@@ -16,6 +12,11 @@
 		type="drive_control.py" output="screen">
 		<param name="speed_rpm" value="200" />
 	</node>
+
+	<node name="cam_sim" pkg="assignment7_line_detection_pd_control"
+		type="send_image.py" output="screen">
+	</node>
+	
 
 </launch>
 

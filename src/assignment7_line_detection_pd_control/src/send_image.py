@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import rospy
 import cv2
@@ -7,9 +9,9 @@ from sensor_msgs.msg import Image
 
 
 def main():
-    rospy.init_node("whoop_woop", anonymous=True)
+    rospy.init_node("cam_sim", anonymous=True)
     # assert len(sys.argv) == 2
-    image_path = 'one_line.jpg' # sys.argv[1]
+    image_path = 'two_lines.jpg' # sys.argv[1]
     print("Sending {}".format(image_path))
     im = cv2.imread(image_path)
     bridge = CvBridge()
