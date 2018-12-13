@@ -60,7 +60,7 @@ class lane_detection:
                 
         segs = ld.line_segments(mask, 1)
      
-        m, b = ld.linreg_method(segs[0])
+        m, b = ld.ransac_method(segs[0])
 #         print("Equation line: y1 = %fx + %f" % (m, b))
         line = ld.end_start_points(m, b, im_h) # img.shape[1])
 
