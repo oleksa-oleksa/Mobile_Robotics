@@ -2,7 +2,9 @@
 
 import sys
 import rospy
+import rospkg
 import cv2
+import os
 from cv_bridge import CvBridge, CvBridgeError
 
 from sensor_msgs.msg import Image
@@ -10,9 +12,9 @@ from sensor_msgs.msg import Image
 
 def main():
     rospy.init_node("cam_sim", anonymous=True)
-    # assert len(sys.argv) == 2
-    image_path = 'two_lines.jpg' # sys.argv[1]
-    print("Sending {}".format(image_path))
+    assert len(sys.argv) == 2
+    image_path = sys.argv[1]
+    print("Sending {} from {}".format(image_path, os.getcwd()))
     im = cv2.imread(image_path)
     bridge = CvBridge()
     image_pub = rospy.Publisher("/camera/color/image_raw", Image, queue_size=10)

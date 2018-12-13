@@ -5,6 +5,7 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn import linear_model
+from twisted.conch.test.test_helper import HEIGHT
 
 def detect_line(img, edges, color):
     # copy for OpenCV GBR 
@@ -83,15 +84,31 @@ def line_segments(img, limit=2):
     return contours[:limit]
 
 
+def linreg_method(contour):
+
+    x = []
+    y = []
+    for val in contour:
+        x.append([val[0][0]])
+        y.append([val[0][1]])
+
+    print("LINREG X {}\nY {}".format(x, y))
+    
+    reg = linear_model.RANSACRegressor()
+    reg.fit(x, y)
+    
+    b = reg.estimator_.intercept_
+    m = reg.estimator_.coef_
+    return m[0], b[0]
+
 def ransac_method(contour):
     """
     Get the linear model of lines
     :param contour: line contour
     :return: parameters m and b of the linear model
     """
-
     ransac = linear_model.RANSACRegressor()
-
+ 
     x = []
     y = []
     for val in contour:
@@ -103,7 +120,7 @@ def ransac_method(contour):
     m = ransac.estimator_.coef_
     return m[0][0], b[0]
 
-def end_start_points(m, b, width):
+def end_start_points(m, b, height):
     """
     Gets two pair of coordinates
     :param m:
@@ -111,12 +128,14 @@ def end_start_points(m, b, width):
     :param width:
     :return:
     """
-    x1 = 0
-    x2 = width
-    y1 = (x1 * m + b)
-    y2 = (x2 * m + b)
-    return ((y1,x1),(y2,x2))
-
+    print("Drawing lines with eq {}x + {}, h: {}".format(m, b, height))
+    y1 = 0
+    x1 = -b/m
+    
+    y2 = height
+    x2 = (height-b)/m
+    
+    return ((x1, y1), (x2, y2))
 
 def show_lines(img, lines):
     
@@ -125,7 +144,7 @@ def show_lines(img, lines):
     for line in lines:
         l0 = tuple(int(c) for c in line[0])
         l1 = tuple(int(c) for c in line[1])
-        cv2.line(img, l0, l1, (255, 0, 0), 5)
+        cv2.arrowedLine(img, l0, l1, (255, 0, 0), 5)
 
     return img
 

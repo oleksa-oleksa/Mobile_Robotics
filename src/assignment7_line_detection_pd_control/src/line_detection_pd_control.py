@@ -46,8 +46,8 @@ class PDController:
         self.pd_error = 0
         self.derivative = 0
         self.control_variable = 0
-        self.kp = 0.005
-        self.kd = 0.99
+        self.kp = 0.2
+        self.kd = 0.9
         self.counter = 0
 
         # PD will be activated when the drive command will be sent via ROS Service
@@ -60,7 +60,7 @@ class PDController:
     def callback(self, data):
         self.counter += 1
 
-        if counter < CONTROLLER_SKIP_RATE:
+        if self.counter < CONTROLLER_SKIP_RATE:
             return
 
         self.counter = 0
@@ -70,7 +70,7 @@ class PDController:
 
         image_width = data.width
         image_height = data.height
-
+        print("Im {}, {}".format(image_width, image_height))
         # Camera image row along which detection happens
         detection_row = image_height/2
         
@@ -78,27 +78,28 @@ class PDController:
         detection_point = image_width/2
 
         # Image column where detected lane line actually crosses detection line
-        intersection_point = (lane_intercept - detection_row)/lane_slope
+        intersection_point = (detection_row - lane_intercept)/lane_slope
 
         opp = detection_point-intersection_point
-        adj = image_height - detection_line
+        adj = image_height - detection_row
 
         # Angle to the intersection point in degrees
-        projected_direction = math.degrees(math.atan2(opp, adj))
-        
+        # projected_direction = 90-math.degrees(math.atan2(opp, adj))
+        projected_direction = math.degrees(math.atan(float(opp)/adj))
         last_pd_error = self.pd_error
 
         # When the car is positioned at the lane, an angle to the intersection approaches zero
         # Thus, the target ideal direction is 0 degrees
-        # Therefore, error term is a negative projected direction
-        self.pd_error = -projected_direction
+        self.pd_error = projected_direction
         self.derivative = self.pd_error - last_pd_error
         
         control_variable = self.kp * self.pd_error + self.kd * self.derivative
-        steering_command = steer.get_actuator_command(angle)
+        steering_command = steer.get_actuator_command(control_variable)
         
         print("Projected direction: {}, error value: {}, error derivative: {}, control var: {}, steering_command {}".format(
             projected_direction, self.pd_error, self.derivative, control_variable, steering_command))
+        print("Projected line params: {}x + {}".format(lane_slope, lane_intercept))
+
 
         drive_command = Drive()
         drive_command.distance = 0.0001

@@ -35,9 +35,10 @@ class lane_detection:
 #         img = cv2.imread('one_line.jpg', 1)
 #         
         # Crop 20% of the image along the y axis
-        y_end = np.shape(img)[0]
-        y_start = (np.shape(img)[0] * 0.2)
-        img = img[int(y_start): int(y_end), :]
+        im_h, im_w, _ = img.shape
+#         y_end = im_h
+#         y_start = (im_h * 0.2)
+#         img = img[int(y_start): int(y_end), :]
      
         # Convert RGB to HSV
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -59,16 +60,16 @@ class lane_detection:
                 
         segs = ld.line_segments(mask, 1)
      
-        m, b = ld.ransac_method(segs[0])
+        m, b = ld.linreg_method(segs[0])
 #         print("Equation line: y1 = %fx + %f" % (m, b))
-        line = ld.end_start_points(m, b, img.shape[1])
+        line = ld.end_start_points(m, b, im_h) # img.shape[1])
 
         #creating the custom message
         line_parameters = Line()
         line_parameters.slope = m
         line_parameters.intercept = b
-        line_parameters.height = img.shape[0]
-        line_parameters.width = img.shape[1]
+        line_parameters.height = im_h
+        line_parameters.width = im_w
                          
         ransac_lines = ld.show_lines(img, [line])
                     
