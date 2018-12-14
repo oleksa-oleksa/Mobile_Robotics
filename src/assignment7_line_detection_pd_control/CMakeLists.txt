@@ -92,6 +92,12 @@ generate_messages(
 #   cfg/DynReconf2.cfg
 # )
 
+# generate_dynamic_reconfigure_options(
+#   cfg/PdController.cfg
+# )
+
+# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+
 ###################################
 ## catkin specific configuration ##
 ###################################

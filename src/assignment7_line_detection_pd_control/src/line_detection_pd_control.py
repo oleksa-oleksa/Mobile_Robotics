@@ -25,14 +25,14 @@ import numpy as np
 from sklearn import linear_model
 from std_msgs.msg import Float32
 from std_msgs.msg import Int32
+from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
-from numpy import arctan
 
 from assignment7_line_detection_pd_control.msg import Line, Drive
 from assignment7_line_detection_pd_control.srv import CarMovement
 
-CONTROLLER_SKIP_RATE = 10
+CONTROLLER_SKIP_RATE = 5
 
 class PDController:
     def __init__(self):
@@ -40,9 +40,11 @@ class PDController:
         self.sub_info = rospy.Subscriber("simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
         self.sub_drive = rospy.Service("pd_controller/drive_forward", CarMovement, callbackDriveForward)
 
-        # All driving will simply be turning left or right at a constant speed
+        # Solution alt: All driving will simply be turning left or right at a constant speed
         self.drive_control = rospy.Publisher("simple_drive_control/forward", Drive, queue_size=10)
-
+        # New solution: publish direct the steering command
+        self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
+        
         self.pd_error = 0
         self.derivative = 0
         self.control_variable = 0
@@ -102,13 +104,14 @@ class PDController:
             averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
 
         drive_command = Drive()
-        drive_command.distance = 0.0001
+        drive_command.distance = 0.01
         drive_command.angle = steering_command
-        drive_command.speed_rpm = 0 # enable drive in lab 
+        drive_command.speed_rpm = self.speed_rpm # enable drive in lab 
         # Without the driving speed, the car should just steer towards the detected line
         
         # Tell the car to turn the weels and drive forward
-        self.drive_control.publish(drive_command)
+        #self.drive_control.publish(drive_command)
+        self.pub_steering.publish(steering_command)
 
         # # counter to eliminate the oscillation
         # self.counter += 1 
@@ -211,6 +214,8 @@ def callbackDriveForward(req):
 
 pd_controller = PDController()
 
+def config_callback(config):
+    rospy.loginfo("Config values: {}, {}".format(config["k_p"], config["k_d"]))
 
 def main(args):
     print("PD Node launched")

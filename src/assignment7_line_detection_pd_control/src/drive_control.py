@@ -83,12 +83,12 @@ def drive(distance, command, speed, angle):
     is_active = True
 
     # stop the car and set desired steering angle + speed
-    pub_speed.publish(0)
+    #pub_speed.publish(0)
     pub_stop_start.publish(1)
-    rospy.sleep(1)
+    #rospy.sleep(1)
     pub_steering.publish(angle)
     pub_stop_start.publish(0)
-    rospy.sleep(1)
+    #rospy.sleep(1)
     pub_speed.publish(speed)
 
     start_pos = last_odom.pose.pose.position
@@ -99,7 +99,7 @@ def drive(distance, command, speed, angle):
         current_distance = sqrt(
             (current_pos.x - start_pos.x)**2 + (current_pos.y - start_pos.y)**2)
         # rospy.loginfo("current distance = %f", current_distance)
-        rospy.sleep(0.1)
+        #rospy.sleep(0.1)
 
     pub_speed.publish(0)
     is_active = False
