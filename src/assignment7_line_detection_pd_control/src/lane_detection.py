@@ -10,8 +10,8 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
 from assignment7_line_detection_pd_control.msg import Line
-from assignment7_line_detection_pd_control.msg import Drive
-from assignment7_line_detection_pd_control.srv import CarMovement
+#from assignment7_line_detection_pd_control.msg import Drive
+#from assignment7_line_detection_pd_control.srv import CarMovement
 
 
 class lane_detection:
