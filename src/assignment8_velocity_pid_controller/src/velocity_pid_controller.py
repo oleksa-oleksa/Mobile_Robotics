@@ -15,6 +15,11 @@ often in meters per minute. Because a rotation always covers the same distance,
 you can convert from rpm to linear distance if you can find the distance per rotation. 
 To do so, all you need is the diameter of the rotation.
 
+PID:
+We have the P controller for fast system response (improve rise time), 
+I controller to correct the steady state error and 
+D controller to dampen the system and reduce overshoot.
+
 '''
 
 import sys
@@ -40,65 +45,59 @@ class PIDController:
         self.pid_controller_sub = rospy.Subscriber("/ticks", Int16, self.callback, queue_size=1)
 
         # Solution: publish direct the steering command
-        self.pub_steering = rospy.Publisher("speed", Int16, queue_size=100)
+        self.pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
         
-        self.kp = 0.2
-        self.ki = 0
-        self.kd = 0.9
+        # Parameters of PID Controller
+        # Matlab Simulation used for PID Controller with pidTuner()
+        self.kp = 1.6  
+        self.ki = 3.3 
+        self.kd = 0.16 
+        self.target_speed = 20 # mps
+        # ===========================
 
-        self.pd_error = 0
+        self.pid_error = 0
+        self.integral = 0
         self.derivative = 0
         self.control_variable = 0
         self.counter = 0
-        self.projected_direction = 0.0
-        self.speed_rpm = 100
+        self.projected_speed = 0.0
+
         
-    def callback(self, data):
-        lane_slope = data.slope
-        lane_intercept = data.intercept
+    def callback(self, msg):
+        # the current rpm got from encoder sensor
+        current_rpm = msg.data
 
-        image_width = data.width
-        image_height = data.height
-        # Camera image row along which detection happens
-        detection_row = image_height/2
+        # converting rpm to a linear speed
+        current_speed = current_rpm * PI * WHEEL_DIAMETER
         
-        # Point along the detection line that's used as an anchor
-        detection_point = image_width/2
-
-        # Image column where detected lane line actually crosses detection line
-        intersection_point = (detection_row - lane_intercept)/lane_slope
-
-        opp = detection_point-intersection_point
-        adj = image_height - detection_row
-
-        # Angle to the intersection point in degrees
-        # projected_direction = 90-math.degrees(math.atan2(opp, adj))
-        self.projected_direction += math.degrees(math.atan(float(opp)/adj))
+        self.projected_speed = self.projected_speed + current_speed
+        
         self.counter += 1
 
         if self.counter < CONTROLLER_SKIP_RATE:
             return
-
-        averaged_direction = self.projected_direction/self.counter
+        
+        # get the average speed for PID control variable
+        average_speed = self.current_speed/self.counter
         self.counter = 0
-        self.projected_direction = 0
+        self.current_speed = 0
         
-        last_pd_error = self.pd_error
+        # PID CONTROLLER
+        last_pid_error = self.pid_error
 
-        # When the car is positioned at the lane, an angle to the intersection approaches zero
-        # Thus, the target ideal direction is 0 degrees
-        self.pd_error = averaged_direction
-        self.derivative = self.pd_error - last_pd_error
+        self.pid_error = self.target_speed - average_speed
+        self.integral = self.integral + self.pid_error
+        self.derivative = self.pid_error - last_pid_error
         
-        control_variable = self.kp * self.pd_error + self.kd * self.derivative
-        steering_command = steer.get_actuator_command(control_variable)
+        control_variable = self.kp * self.pd_error + self.ki * self.integral  + self.kd * self.derivative
         
-        print("Projected direction: {}, error value: {}, error derivative: {}, control var: {}, steering_command {}".format(
-            averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
+        speed_command = control_variable / (PI * WHEEL_DIAMETER)
+        
+        print("Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
+            average_speed, self.pd_error, self.integral, self.derivative, control_variable, speed_command))
 
-
-        # Set only the wheel angle and use manual control publisher to start the car
-        self.pub_steering.publish(steering_command)
+        # Publish the speed
+        self.pub_speed.publish(speed_command)
 
  
 # The global PID Controller

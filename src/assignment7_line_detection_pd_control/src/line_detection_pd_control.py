@@ -7,6 +7,8 @@ The Algorithm:
 * Create a command for an actuator (code from assignment 6)
 * Start a mobile robot with a manual speed control publisher from a terminal window
 * Detect the new line position and calculate a new error and a new command and perform the next movement
+
+Use rostopic pub /manual_control/speed std_msgs/Int16 to start a car with a fixed speed
 '''
 
 #imports from previous assignments
@@ -43,8 +45,8 @@ class PDController:
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
 
         # Parameters of PD Controller
-        self.kp = 0.2
-        self.kd = 0.9
+        self.kp = 5 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
+        self.kd = 0.35
         # ===========================
 
         self.pd_error = 0
@@ -94,7 +96,7 @@ class PDController:
         control_variable = self.kp * self.pd_error + self.kd * self.derivative
         steering_command = steer.get_actuator_command(control_variable)
         
-        print("Projected direction: {}, error value: {}, error derivative: {}, control var: {}, steering_command {}".format(
+        print("Projected direction: {:.2f}, error: {:.2f}, derivative: {:.2f}, control var: {:.2f}, steering_command {}".format(
             averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
 
 
