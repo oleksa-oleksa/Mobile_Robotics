@@ -3,10 +3,9 @@
 The Algorithm:
 * Launch the lane_detection node and get the line equation with Ransac (assignment 6). 
 * New feature added: custom message type Line for detected slope and intercept
-* Launch the simple_drive_control node 
 * Calculate an error using PD controller from line parameters (new code created for assignment 7)
 * Create a command for an actuator (code from assignment 6)
-* Move a mobile robot
+* Start a mobile robot with a manual speed control publisher from a terminal window
 * Detect the new line position and calculate a new error and a new command and perform the next movement
 '''
 
@@ -29,36 +28,31 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment7_line_detection_pd_control.msg import Line, Drive
-from assignment7_line_detection_pd_control.srv import CarMovement
+from assignment7_line_detection_pd_control.msg import Line
+#from assignment7_line_detection_pd_control.msg import Drive
+#from assignment7_line_detection_pd_control.srv import CarMovement
 
 CONTROLLER_SKIP_RATE = 5
 
 class PDController:
     def __init__(self):
+        # Get the line parameters of detected line 
         self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
-        self.sub_info = rospy.Subscriber("simple_drive_control/info", String, callbackDrivingControl, queue_size=10)
-        self.sub_drive = rospy.Service("pd_controller/drive_forward", CarMovement, callbackDriveForward)
 
-        # Solution alt: All driving will simply be turning left or right at a constant speed
-        self.drive_control = rospy.Publisher("simple_drive_control/forward", Drive, queue_size=10)
-        # New solution: publish direct the steering command
+        # Solution: publish direct the steering command
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
+        # Solution alt: All driving will simply be turning left or right at a constant speed
+        #self.drive_control = rospy.Publisher("simple_drive_control/forward", Drive, queue_size=10)
+
+        self.kp = 0.2
+        self.kd = 0.9
         
         self.pd_error = 0
         self.derivative = 0
         self.control_variable = 0
-        self.kp = 0.2
-        self.kd = 0.9
         self.counter = 0
         self.projected_direction = 0.0
-
-        # PD will be activated when the drive command will be sent via ROS Service
-        self.activated = True
-        # Driving will be enabled after first movement
-        self.enabled = False
-        
-        self.speed_rpm = 200
+        self.speed_rpm = 100
         
     def callback(self, data):
         lane_slope = data.slope
@@ -103,131 +97,30 @@ class PDController:
         print("Projected direction: {}, error value: {}, error derivative: {}, control var: {}, steering_command {}".format(
             averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
 
-        drive_command = Drive()
-        drive_command.distance = 0.01
-        drive_command.angle = steering_command
-        drive_command.speed_rpm = self.speed_rpm # enable drive in lab 
-        # Without the driving speed, the car should just steer towards the detected line
-        
-        # Tell the car to turn the weels and drive forward
-        #self.drive_control.publish(drive_command)
+
+        # Set only the wheel angle and use manual control publisher to start the car
         self.pub_steering.publish(steering_command)
 
-        # # counter to eliminate the oscillation
-        # self.counter += 1 
-        
-        # slope_line = data.slope
-        # intercept_line = data.intercept
-        
-        # camera_height = data.height
-        # camera_width = data.width
-        
-        # # we want two lines to intersect in the middle_of_the_screen = camera_width / 2
-
-        # target_position = camera_width / 2
-        
-        # # Get the current position
-        # # solving the equations:
-        # # y1 = h / 2 (horizontal line in the middle of camera)
-        # # y2 = slope * x + intercept
-        # # y1 = y2 = (camera_height / 2 - intercept) / k
-        # line_height = camera_height / 2
-        # current_position = (line_height - intercept_line) / slope_line
-        
-        # last_pd_error = self.pd_error
-        
-        # #Calculate the error (P Controller)
-        # self.pd_error = target_position - current_position
-
-        # '''
-        # Calculation error change (D part)
-        # Negative values of derivative indicate an improvement (reduction) in the error signal. 
-        # For example, if the last error was 20 and the current error is 10, the derivative will be -10. 
-        # When these negative values are multiplied with a constant, Kd, and are added to the output of the loop, 
-        # it can slow down the system when approaching the target.
-        # '''
-        # self.derivative = self.pd_error - last_pd_error
-
-        # #Calculate the control variable
-        # control_variable = self.kp * self.pd_error + self.kd * self.derivative
-        
-        # opposite_side = self.pd_error
-        # adjacent_side = line_height
-        # angle = math.degrees(arctan(opposite_side / adjacent_side))
-        # print("Angle in grad: ", angle)
-
-        # drive_msg = Drive()
-        # drive_msg.distance = 0.0001
-        # drive_msg.angle = 0
-        # drive_msg.speed_rpm = 0
-        
-        # # Speed will be enabled after PD will be tested in Lab
-        # if not self.enabled:
-        #     drive_msg.speed_rpm = 0
-        # elif self.enabled:
-        #     drive_msg.speed_rpm = self.speed_rpm
-        
-        # # move a car
-        # # positive control_variable: turn left with positive angle value
-
-        # print("Control variable: ", control_variable)
-        # if self.counter > 20:
+        # alternative: use the publishers from drive_control to perform the single movement
+        #drive_command = Drive()
+        #drive_command.distance = 0.01
+        #drive_command.angle = steering_command
+        #drive_command.speed_rpm = self.speed_rpm # enable drive in lab 
+        # Tell the car to turn the weels and drive forward
+        #self.drive_control.publish(drive_command)
     
-        #     if control_variable > 0:
-        #         actuator_command = steer.get_actuator_command(angle)
-        #         drive_msg.angle = actuator_command
-        #         print("Actuator command: ", drive_msg.angle)
-        #         self.pub_forward_right.publish(drive_msg)
-        #         self.pub_actuator_commands.publish(actuator_command)
-        #         self.counter = 0
-    
-        #     # negative control_variable: turn right with negative angle value
-        #     elif control_variable < 0:
-        #         actuator_command = steer.get_actuator_command(-angle)
-        #         drive_msg.angle = actuator_command
-        #         print("Actuator command: ", drive_msg.angle)
-        #         self.pub_forward_left.publish(drive_msg)
-        #         self.pub_actuator_commands.publish(actuator_command)
-        #         self.counter = 0
-                
-        #     elif control_variable == 0:
-        #         actuator_command = steer.get_actuator_command(0)
-        #         drive_msg.angle = actuator_command                
-        #         print("Actuator command: ", drive_msg.angle)
-        #         self.pub_forward_straight.publish(drive_msg)
-        #         self.pub_actuator_commands.publish(actuator_command)
-        #         self.counter = 0
-        #         self.enabled = False
-        #         self.activated = False
-            
-    
-def callbackDrivingControl(msg):
-    last_driving_control_info = msg.data
-
-def callbackDriveForward(req):
-    rospy.loginfo(rospy.get_caller_id())
-    print("PD status is started...")
-
-    # PD-controller will start to work and move a car
-    pd_controller.activated = True
-    pd_controller.enabled = False # set to true after steer testing without driving
-
+ 
+ 
+# The global PD Controller
 pd_controller = PDController()
 
-def config_callback(config):
-    rospy.loginfo("Config values: {}, {}".format(config["k_p"], config["k_d"]))
-
 def main(args):
-    print("PD Node launched")
+    print("PD Controller Node launched")
     rospy.init_node('pd_controller', anonymous=True)
 
     steer.calibrate_steer()
-    
-    # place the car in initial position and start service
-    # in terminal: rosservice call /pd_controller/drive_start
-    sub_drive_start = rospy.Service("pd_controller/drive_start", CarMovement, callbackDriveForward)
-    print("rosservice call /pd_controller/drive_start to start PD controller")
-    
+    print("Steer commands mapped.")
+        
     rospy.loginfo(rospy.get_caller_id() + ": started!")
 
     try:
