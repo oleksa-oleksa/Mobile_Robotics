@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>assignment1_publisher_subscriber</name>
+  <name>assignment2_publisher_subscriber</name>
   <version>0.0.0</version>
-  <description>The assignment1_publisher_subscriber package</description>
+  <description>The assignment2_publisher_subscriber package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
