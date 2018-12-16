@@ -62,7 +62,7 @@ def calibrate_steer():
     
     global slope_steer, intercept_steer
     slope_steer, intercept_steer = ransac_method(commands)
-    print("Equation line 1: y = %fx + %f" % (slope_steer, intercept_steer))
+    print("Steering line 1: y = %fx + %f" % (slope_steer, intercept_steer))
 
     # define borders
     global max_left, max_right

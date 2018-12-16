@@ -1,51 +1,50 @@
 #!/usr/bin/env python
 '''
-The Algorithm:
-* Launch the lane_detection node and get the line equation with Ransac (assignment 6). 
-* New feature added: custom message type Line for detected slope and intercept
-* Calculate an error using PD controller from line parameters (new code created for assignment 7)
-* Create a command for an actuator (code from assignment 6)
-* Start a mobile robot with a manual speed control publisher from a terminal window
-* Detect the new line position and calculate a new error and a new command and perform the next movement
+Created by Oleksandra Baga
+
+Write a PID-controller which makes sure that the model car is able to achieve and maintain a
+certain velocity, which comes as an input and is specified in meters per second. Use the
+pulse-sensor in the vehicle as a sensory feedback. The output of the controller shall be an
+rpm-amount.
+
+1 rpm: wheel rotates exactly once every minute
+
+Rpm stands for rotations per minute and is used to quantify the speed at which an object spins, 
+such as a motor or a centrifuge. Linear speed measures the actual distance traveled, 
+often in meters per minute. Because a rotation always covers the same distance, 
+you can convert from rpm to linear distance if you can find the distance per rotation. 
+To do so, all you need is the diameter of the rotation.
+
 '''
 
-#imports from previous assignments
-import line as line
-import steer_calibration as steer
-import rospy
-
-#python imports
 import sys
+import rospy
 import cv2
 from matplotlib import pyplot as plt
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
-from std_msgs.msg import Float32
-from std_msgs.msg import Int32
-from std_msgs.msg import UInt8
+from std_msgs.msg import Int32, Int16, UInt8, Float32
 from std_msgs.msg import String
 import math
 
-from assignment7_line_detection_pd_control.msg import Line
-#from assignment7_line_detection_pd_control.msg import Drive
-#from assignment7_line_detection_pd_control.srv import CarMovement
 
 CONTROLLER_SKIP_RATE = 5
+PI = 3.14159265
+WHEEL_DIAMETER = 0.07 # meter
 
-class PDController:
+class PIDController:
     def __init__(self):
-        # Get the line parameters of detected line 
-        self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
+        # Get the ticks im rpm
+        self.pid_controller_sub = rospy.Subscriber("/ticks", Int16, self.callback, queue_size=1)
 
         # Solution: publish direct the steering command
-        self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
-
-        # Parameters of PD Controller
+        self.pub_steering = rospy.Publisher("speed", Int16, queue_size=100)
+        
         self.kp = 0.2
+        self.ki = 0
         self.kd = 0.9
-        # ===========================
 
         self.pd_error = 0
         self.derivative = 0
@@ -100,17 +99,15 @@ class PDController:
 
         # Set only the wheel angle and use manual control publisher to start the car
         self.pub_steering.publish(steering_command)
+
  
- 
-# The global PD Controller
-pd_controller = PDController()
+# The global PID Controller
+pid_controller = PIDController()
 
 def main(args):
-    print("PD Lane Detection Controller Node launched")
-    rospy.init_node('pd_controller', anonymous=True)
+    print("PID Velocity Controller Node launched")
+    rospy.init_node('pid_controller', anonymous=True)
 
-    steer.calibrate_steer()
-    print("Steer commands mapped.")
         
     rospy.loginfo(rospy.get_caller_id() + ": started!")
 
