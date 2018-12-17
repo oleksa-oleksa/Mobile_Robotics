@@ -35,22 +35,22 @@ from std_msgs.msg import String
 import math
 
 
-CONTROLLER_SKIP_RATE = 5
+CONTROLLER_SKIP_RATE = 2
 PI = 3.14159265
-WHEEL_DIAMETER = 0.07 # meter
+WHEEL_DIAMETER = 0.065 # meter
 
 class PIDController:
     def __init__(self):
         # Get the ticks im rpm
-        self.pid_controller_sub = rospy.Subscriber("/ticks", Int16, self.callback, queue_size=1)
+        self.pid_controller_sub = rospy.Subscriber("/ticks", UInt8, self.callback, queue_size=1)
 
         # Solution: publish direct the steering command
         self.pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
         
         # Parameters of PID Controller
         # Matlab Simulation used for PID Controller with pidTuner()
-        self.kp = 1.6  
-        self.ki = 3.3 
+        self.kp = 0.5  
+        self.ki = 0.9
         self.kd = 0.16 
         self.target_speed = 20 # mps
         # ===========================
@@ -78,7 +78,7 @@ class PIDController:
             return
         
         # get the average speed for PID control variable
-        average_speed = self.current_speed/self.counter
+        average_speed = current_speed/self.counter
         self.counter = 0
         self.current_speed = 0
         
@@ -89,12 +89,18 @@ class PIDController:
         self.integral = self.integral + self.pid_error
         self.derivative = self.pid_error - last_pid_error
         
-        control_variable = self.kp * self.pd_error + self.ki * self.integral  + self.kd * self.derivative
+        control_variable = self.kp * self.pid_error + self.ki * self.integral  + self.kd * self.derivative
         
         speed_command = control_variable / (PI * WHEEL_DIAMETER)
         
-        print("Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
-            average_speed, self.pd_error, self.integral, self.derivative, control_variable, speed_command))
+        print("Target: {:.2f}, Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
+            self.target_speed, average_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
+        
+        info = ("Target: {:.2f}, Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
+            self.target_speed, average_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
+        
+        with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment8_velocity_pid_controller/src/pid_output.txt', 'a') as out:
+            out.write(info)
 
         # Publish the speed
         self.pub_speed.publish(speed_command)

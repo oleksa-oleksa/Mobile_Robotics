@@ -33,7 +33,7 @@ import math
 from assignment7_line_detection_pd_control.msg import Line
 
 
-CONTROLLER_SKIP_RATE = 5
+CONTROLLER_SKIP_RATE = 2
 
 class PDController:
     def __init__(self):
@@ -44,8 +44,8 @@ class PDController:
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
 
         # Parameters of PD Controller
-        self.kp = 0.6 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
-        self.kd = 0.1
+        self.kp = 0.3 
+        self.kd = 0.7
         # ===========================
 
         self.pd_error = 0

@@ -13,7 +13,7 @@ from std_msgs.msg import String
 epsilon = 0.05   # allowed inaccuracy for distance calculation
 speed_rpm = 200
 #angle_left = 30
-#angle_left = 65
+angle_left = 65
 angle_straight = 90
 angle_right = 150
 last_odom = None
