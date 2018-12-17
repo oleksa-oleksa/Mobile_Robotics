@@ -45,8 +45,8 @@ class PDController:
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
 
         # Parameters of PD Controller
-        self.kp = 5 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
-        self.kd = 0.35
+        self.kp = 0.1 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
+        self.kd = 0.95
         # ===========================
 
         self.pd_error = 0
@@ -98,7 +98,12 @@ class PDController:
         
         print("Projected direction: {:.2f}, error: {:.2f}, derivative: {:.2f}, control var: {:.2f}, steering_command {}".format(
             averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
-
+        
+        info = ("Projected direction: {:.2f}, error: {:.2f}, derivative: {:.2f}, control var: {:.2f}, steering_command {}\n".format(
+            averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
+        
+        with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment7_line_detection_pd_control/src/pd_output.txt', 'a') as out:
+            out.write(info)
 
         # Set only the wheel angle and use manual control publisher to start the car
         self.pub_steering.publish(steering_command)
