@@ -45,8 +45,8 @@ class PDController:
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
 
         # Parameters of PD Controller
-        self.kp = 0.1 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
-        self.kd = 0.95
+        self.kp = 0.6 # kd = kp * 0.06 (Matlab PD Simulation for Faster and Robust response. )
+        self.kd = 0.1
         # ===========================
 
         self.pd_error = 0

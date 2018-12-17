@@ -54,6 +54,9 @@ class lane_detection:
         # Fill the 2/5 of picture with a black color
         h, w = mask.shape
         cv2.rectangle(mask, (0,0), (w, 2*h/5), 0, cv2.FILLED)
+        cv2.rectangle(mask, (0,0), (w/5, h), 0, cv2.FILLED)
+        cv2.rectangle(mask, (4*w/5,0), (4*w/5, h), 0, cv2.FILLED)
+
      
         # Bitwise-AND mask and original image
         res = cv2.bitwise_and(img, img, mask=mask)
