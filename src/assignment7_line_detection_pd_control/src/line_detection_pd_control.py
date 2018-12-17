@@ -31,8 +31,7 @@ from std_msgs.msg import String
 import math
 
 from assignment7_line_detection_pd_control.msg import Line
-#from assignment7_line_detection_pd_control.msg import Drive
-#from assignment7_line_detection_pd_control.srv import CarMovement
+
 
 CONTROLLER_SKIP_RATE = 5
 
