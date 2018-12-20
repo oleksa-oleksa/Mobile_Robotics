@@ -114,12 +114,11 @@ pd_controller = PDController()
 def main(args):
     print("PD Lane Detection Controller Node launched")
     rospy.init_node('pd_controller', anonymous=True)
+    rospy.loginfo(rospy.get_caller_id() + ": started!")
 
     steer.calibrate_steer()
     print("Steer commands mapped.")
         
-    rospy.loginfo(rospy.get_caller_id() + ": started!")
-
     try:
         rospy.spin()
     except KeyboardInterrupt:

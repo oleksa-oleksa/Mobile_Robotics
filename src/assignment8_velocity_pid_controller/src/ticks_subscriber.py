@@ -17,31 +17,14 @@ from std_msgs.msg import Int32, Int16, UInt8, Float32
 from std_msgs.msg import String
 import math
 
+slope_speed = None
+intercept_speed = None
 
-CONTROLLER_SKIP_RATE = 1
-PI = 3.14159265
-WHEEL_DIAMETER = 0.065 # meter
-
-
-class PIDController:
+class TicksSubscriber:
     def __init__(self):
         # Get the ticks im rpm
-        self.pid_controller_sub = rospy.Subscriber("/ticks", UInt8, self.callback, queue_size=1)
-        
-        # Parameters of PID Controller
-        # Matlab Simulation used for PID Controller with pidTuner()
-        self.kp = 0.9  
-        self.ki = 0.003
-        self.kd = 0.2
-        self.target_speed = 150 # mps
-        # ===========================
-
-        self.pid_error = 0
-        self.integral = 0
-        self.derivative = 0
-        self.control_variable = 0
-        self.counter = 0
-        self.projected_speed = 0.0
+        self.ticks_sub = rospy.Subscriber("/ticks", UInt8, self.callback, queue_size=1)
+        self.ticks_pub = rospy.Publisher("ticks_per_minute", Int16, queue_size=100)
         self.ticks = []
         self.start = time.time()
         
@@ -64,54 +47,35 @@ class PIDController:
         all_ticks = sum(self.ticks) 
         print("RPM: {}".format(all_ticks))
         self.ticks = []
-        return
+        return all_ticks
 
-        # converting rpm to a linear speed
-        current_speed = current_rpm * PI * WHEEL_DIAMETER
-        
-        self.projected_speed = self.projected_speed + current_speed
-        
-        self.counter += 1
 
-        if self.counter < CONTROLLER_SKIP_RATE:
-            return
-        
-        # get the average speed for PID control variable
-        average_speed = self.projected_speed/self.counter
-        
-        self.counter = 0
-        self.current_speed = 0
-        
-        # PID CONTROLLER
-        last_pid_error = self.pid_error
+def calibrate_velocity():
+    measured_rpm = np.array([[100, 496], [100, 541], [100, 473],
+                             [150, 1232], [150, 1140], [150, 1160],
+                             [200, 1806],[200, 1761],[200, 1620],
+                             [250, 2305],[250, 2114],[250, 2052]]) 
+    
+    ransac = linear_model.RANSACRegressor()
+    
+    
+    n = measured_rpm.shape[0]
+    ransac.fit(measured_rpm[:,0].reshape((n, 1)), measured_rpm[:,1].reshape(n, 1))
+    global slope_speed, intercept_speed
+    intercept_speed = ransac.estimator_.intercept_
+    slope_speed = ransac.estimator_.coef_
+    
 
-        self.pid_error = self.target_speed - average_speed
-        self.integral = self.integral + self.pid_error
-        self.derivative = self.pid_error - last_pid_error
-        
-        control_variable = self.kp * self.pid_error + self.ki * self.integral  + self.kd * self.derivative
-        
-        speed_command = control_variable / (PI * WHEEL_DIAMETER)
+def get_ticks(command):
+    command = slope_speed * command + intercept_speed
+    return int(command)
 
-        print("RPM: {}".format(current_rpm))
-        print("current linear speed: {}".format(current_speed))
-        print("average speed: {}".format(average_speed))
-        
-        print("error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
-            self.pid_error, self.integral, self.derivative, control_variable, speed_command))
-            
  
- 
-# The global PID Controller
-pid_controller = PIDController()
-
 def main(args):
     print("Ticks Node launched")
     rospy.init_node('ticks_subscriber', anonymous=True)
-
-        
     rospy.loginfo(rospy.get_caller_id() + ": started!")
-
+    
     try:
         rospy.spin()
     except KeyboardInterrupt:

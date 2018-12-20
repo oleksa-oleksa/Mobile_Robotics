@@ -33,17 +33,53 @@ from sklearn import linear_model
 from std_msgs.msg import Int32, Int16, UInt8, Float32
 from std_msgs.msg import String
 import math
+import time
 
+import ticks_subscriber as ticks
 
 CONTROLLER_SKIP_RATE = 2
 PI = 3.14159265
 WHEEL_DIAMETER = 0.065 # meter
 
+class Speedometer:
+    
+    def __init__(self, aggregation_period):
+        self.aggregation_period = aggregation_period
+        self.ticks = []
+        self.ticks_sub = rospy.Subscriber("/ticks", UInt8, self._tick, queue_size=1)
+        
+    def get_speed(self):
+        "Return average RMP reported by /ticks_per_minute for the last aggregation_period secods" 
+        n_ticks = len(self.ticks)
+        
+        if n_ticks == 0:
+            return 0
+        
+        return float(sum(t[1] for t in self.ticks))/n_ticks
+        
+    
+    def _tick(self, msg):
+        now = rospy.get_time()
+        reading = msg.data
+        self.ticks.append((now, reading))
+        
+        too_old = lambda t: now-t[0] > self.aggregation_period
+                
+        self.ticks = [tick for tick in self.ticks if not too_old(tick)]
+        
+        
 class PIDController:
     def __init__(self):
         # Get the ticks im rpm
-        self.pid_controller_sub = rospy.Subscriber("/ticks", UInt8, self.callback, queue_size=1)
-
+        # self.ticks_pub = rospy.Subscriber("/ticks_per_minute", UInt8, self.callback, queue_size=1)
+        
+        # Speedometer will report average RPM for the last two seconds
+        self.speedometer = Speedometer(2)
+        
+        CONTROL_DELAY = 1
+        # Launch self._callback every CONTROL_DELAY second
+        self.control_timer = rospy.Timer(CONTROL_DELAY, self._callback)
+        
         # Solution: publish direct the steering command
         self.pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
         
@@ -63,10 +99,11 @@ class PIDController:
         self.projected_speed = 0.0
 
         
-    def callback(self, msg):
+    def callback(self, event):
         # the current rpm got from encoder sensor
-        current_rpm = msg.data
-
+        # current_rpm = msg.data
+        current_rpm = self.speedometer().get_speed()
+        
         # converting rpm to a linear speed
         current_speed = current_rpm * PI * WHEEL_DIAMETER
         
@@ -103,7 +140,8 @@ class PIDController:
             out.write(info)
 
         # Publish the speed
-        self.pub_speed.publish(speed_command)
+        # Warning: Use this publisher only if you have tested the speed and sure what you do
+        #self.pub_speed.publish(speed_command)
 
  
 # The global PID Controller
@@ -111,10 +149,10 @@ pid_controller = PIDController()
 
 def main(args):
     print("PID Velocity Controller Node launched")
-    rospy.init_node('pid_controller', anonymous=True)
-
-        
+    rospy.init_node('pid_controller', anonymous=True)       
     rospy.loginfo(rospy.get_caller_id() + ": started!")
+
+    ticks.calibrate_velocity()
 
     try:
         rospy.spin()
