@@ -39,7 +39,7 @@ import ticks_subscriber as ticks
 #from assignment8_velocity_pid_controller.src.ticks_subscriber import slope_speed,\
 #    intercept_speed
 
-global slope_distance, intercept_distance, slope_speed, intercept_speed
+global slope_distance, intercept_distance, slope_speed, intercept_speed, slope_command, intercept_command
 
 CONTROLLER_SKIP_RATE = 2
 PI = 3.14159265
@@ -90,10 +90,10 @@ class PIDController:
         
         # Parameters of PID Controller
         # Matlab Simulation used for PID Controller with pidTuner()
-        self.kp = 0.5  
-        self.ki = 0.9
-        self.kd = 0.16 
-        self.target_speed = 0.2 # mps
+        self.kp = 0.07  
+        self.ki = 0.001
+        self.kd = 1.8 
+        self.target_speed = 0.9 # mps
 
         # ===========================
         self.start = time.time()
@@ -105,8 +105,20 @@ class PIDController:
         self.counter = 0
         self.projected_speed = 0.0
 
-    def get_velocity(self):
+    def get_speed_command(self):
         measured_rpm = np.array([[0.17, 150], [0.3, 200], [0.427, 250]]) 
+        
+        ransac = linear_model.RANSACRegressor()
+                
+        n = measured_rpm.shape[0]
+        ransac.fit(measured_rpm[:,0].reshape((n, 1)), measured_rpm[:,1].reshape(n, 1))
+        global slope_command, intercept_command
+        intercept_command = ransac.estimator_.intercept_
+        slope_command = ransac.estimator_.coef_
+
+
+    def get_velocity(self):
+        measured_rpm = np.array([[150, 0.17], [200, 0.3], [250, 0.427]]) 
         
         ransac = linear_model.RANSACRegressor()
                 
@@ -149,40 +161,52 @@ class PIDController:
             return
         
         self.get_distance() # wait period is 2 sec
-        current_speed = (slope_distance * self.ticks + intercept_distance) / 2
+        
+#         print("slope_distance" + str(slope_distance.shape))
+        
+        current_speed = (slope_distance * len(self.ticks) + intercept_distance) / 2
+        
+        print("intercept_distance" + str(intercept_distance.shape))
+
+        print("current_speed" + str(current_speed.shape))
+
         
         #current_speed = current_speed * PI * WHEEL_DIAMETER
                 
         # PID CONTROLLER
         last_pid_error = self.pid_error
-
         self.pid_error = self.target_speed - current_speed
         self.integral = self.integral + self.pid_error
         self.derivative = self.pid_error - last_pid_error
         
         control_variable = self.kp * self.pid_error + self.ki * self.integral  + self.kd * self.derivative
         
+        #control_variable = current_speed + control_variable
+        
         #speed_command = control_variable / (PI * WHEEL_DIAMETER)
         #self.target_speed(speed_command)
         self.get_velocity()
-        speed_command = slope_speed * control_variable + intercept_speed
+        self.get_speed_command()
+        #current_speed = slope_speed * control_variable + intercept_speed
+        
+        current_speed = self.target_speed + control_variable
+        speed_command = slope_command * current_speed + intercept_command
         
         message = "Target: {}, Speed: {}, error: {}, integral: {}, derivative: {}, control var: {}, speed_command {}"
         info = message.format(self.target_speed, current_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command)
         
-        
         print(info)
-        
         
         with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment8_velocity_pid_controller/src/pid_output.txt', 'a') as out:
             out.write(info)
             
         
         self.start = time.time()
+        self.ticks = []
 
         # Publish the speed
         # Warning: Use this publisher only if you have tested the speed and sure what you do
-        #self.pub_speed.publish(speed_command)
+        self.pub_speed.publish(speed_command)
 
  
 # The global PID Controller
