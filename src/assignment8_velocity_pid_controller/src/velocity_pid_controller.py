@@ -88,7 +88,7 @@ class PIDController:
         self.kp = 0.5  
         self.ki = 0.9
         self.kd = 0.16 
-        self.target_speed = 20 # mps
+        self.target_speed = 0.2 # mps
         # ===========================
 
         self.pid_error = 0
@@ -102,27 +102,15 @@ class PIDController:
     def callback(self, event):
         # the current rpm got from encoder sensor
         # current_rpm = msg.data
-        current_rpm = self.speedometer().get_speed()
+        current_rps = self.speedometer().get_speed()
         
         # converting rpm to a linear speed
-        current_speed = current_rpm * PI * WHEEL_DIAMETER
-        
-        self.projected_speed = self.projected_speed + current_speed
-        
-        self.counter += 1
-
-        if self.counter < CONTROLLER_SKIP_RATE:
-            return
-        
-        # get the average speed for PID control variable
-        average_speed = current_speed/self.counter
-        self.counter = 0
-        self.current_speed = 0
-        
+        current_speed = current_rps * PI * WHEEL_DIAMETER
+                
         # PID CONTROLLER
         last_pid_error = self.pid_error
 
-        self.pid_error = self.target_speed - average_speed
+        self.pid_error = self.target_speed - current_speed
         self.integral = self.integral + self.pid_error
         self.derivative = self.pid_error - last_pid_error
         
@@ -131,10 +119,10 @@ class PIDController:
         speed_command = control_variable / (PI * WHEEL_DIAMETER)
         
         print("Target: {:.2f}, Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
-            self.target_speed, average_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
+            self.target_speed, current_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
         
         info = ("Target: {:.2f}, Speed: {:.2f}, error: {:.2f}, integral: {:.2f}, derivative: {:.2f}, control var: {:.2f}, speed_command {}".format(
-            self.target_speed, average_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
+            self.target_speed, current_speed, self.pid_error, self.integral, self.derivative, control_variable, speed_command))
         
         with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment8_velocity_pid_controller/src/pid_output.txt', 'a') as out:
             out.write(info)
