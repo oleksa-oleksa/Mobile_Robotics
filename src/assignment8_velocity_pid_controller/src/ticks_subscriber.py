@@ -30,7 +30,7 @@ class TicksMeausurer:
         self.aggregation_period = aggregation_period
         self.ticks = []
         self.ticks_sub = rospy.Subscriber("/ticks", UInt8, self.callback, queue_size=1)
-        self.sub_odom = rospy.Subscriber("/odom", Odometry, self.callbackOdom, queue_size=100)
+        #self.sub_odom = rospy.Subscriber("/odom", Odometry, self.callbackOdom, queue_size=100)
         self.pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
         
         self.start = time.time()
@@ -62,6 +62,12 @@ class TicksMeausurer:
 
     
     def callback(self, event):
+        while not rospy.is_shutdown() and last_odom is None:
+            rospy.loginfo(
+                "%s: No initial odometry message received. Waiting for message...",
+                rospy.get_caller_id())
+            #rospy.sleep(1.0)
+
         current_rpm = event.data
         
         start_pos = last_odom.pose.pose.position
@@ -106,34 +112,31 @@ class TicksSubscriber:
         self.ticks_pub = rospy.Publisher("ticks_per_minute", Int16, queue_size=100)
         self.ticks = []
         self.start = time.time()
+        self.total_time = 0
         
         
     def callback(self, msg):
         # the current rpm got from encoder sensor
         current_rpm = msg.data
         
+        if current_rpm == 0:
+            return
+        self.start = time.time()
         stop = time.time()
         
         diff = stop - self.start
+        self.total_time = self.total_time + diff
         
-        if diff < 60:
-            self.ticks.append(current_rpm)
-            return
-        else:
-            self.start = time.time()
-        
+        self.ticks.append(current_rpm)
         
         all_ticks = sum(self.ticks) 
         print("RPM: {}".format(all_ticks))
-        self.ticks = []
+        #self.ticks = []
         return all_ticks
 
 
 def calibrate_velocity():
-    measured_rpm = np.array([[100, 496], [100, 541], [100, 473],
-                             [150, 1232], [150, 1140], [150, 1160],
-                             [200, 1806],[200, 1761],[200, 1620],
-                             [250, 2305],[250, 2114],[250, 2052]]) 
+    measured_rpm = np.array([[150, 0.17], [200, 0.3], [250, 0.427]]) 
     
     ransac = linear_model.RANSACRegressor()
     
@@ -158,15 +161,10 @@ def main(args):
     pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
     pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
         
-    steer.calibrate_steer()
-    steering_command = steer.get_actuator_command(0)
-    print("stearing command for 0 grad: {}".format(steering_command))
-    # 0 grad: go straight
-    pub_steering.publish(steering_command)
-    # np speed, remain steady before manual control start
     pub_speed.publish(0)
  
-    measurer = TicksMeausurer(2)
+    #measurer = TicksMeausurer(2)
+    ticks_listener = TicksSubscriber()
     
     try:
         rospy.spin()
