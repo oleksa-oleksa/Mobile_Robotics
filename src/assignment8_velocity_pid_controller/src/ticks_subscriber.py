@@ -33,10 +33,6 @@ class TicksMeausurer:
         self.sub_odom = rospy.Subscriber("/odom", Odometry, self.callbackOdom, queue_size=100)
         self.pub_speed = rospy.Publisher("speed", Int16, queue_size=100)
         
-        # to control car exactly when it goes
-        self.sub_start = rospy.Subscriber("/manual_start", String, self.callbackStart, queue_size=100)
-        self.pub_start = rospy.Publisher("manual_start", String, queue_size=100)
-
         self.start = time.time()
         self.distance = 0.1 # 1 meter
         self.epsilon = 0.05   # allowed inaccuracy for distance calculation
@@ -44,7 +40,7 @@ class TicksMeausurer:
     def get_speed(self):
         "Return average RMP reported by /ticks_per_minute for the last aggregation_period secods" 
         n_ticks = len(self.ticks)
-        
+            
         if n_ticks == 0:
             return 0
         
