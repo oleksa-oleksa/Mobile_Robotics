@@ -93,7 +93,7 @@ class PIDController:
         self.kp = 0.07  
         self.ki = 0.001
         self.kd = 1.8 
-        self.target_speed = 0.9 # mps
+        self.target_speed = 0.4 # mps
 
         # ===========================
         self.start = time.time()
