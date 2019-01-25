@@ -253,7 +253,7 @@ def main(argv):
     point_3 = get_point_to_distance(outer_track, (y, x), point_2, 20)
 
     distance = np.sqrt((point_3[0] - x)**2 + (point_3[1] - y)**2)
-    print("Distance to calculated point:", distance * 0.01)
+    print("Calculated point: Coordinates: (", point_3[0] * 0.01, ", ", point_3[1] * 0.01, "), Distance:", distance * 0.01)
 
     plt.scatter([point_3[0]], [point_3[1]], c='b', s=40)
     # coords, distance = get_closest_point(argv[0], argv[1], outer_track)
