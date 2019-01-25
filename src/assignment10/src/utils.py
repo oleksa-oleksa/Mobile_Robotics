@@ -244,11 +244,16 @@ def main(argv):
     print(inner_track)
     outer_track = calculate_shape(29)
     print(outer_track)
-    point_2, distance = get_closest_point(y, x, inner_track)
+    # point_2, distance = get_closest_point(y, x, inner_track)
+    point_2, distance = get_closest_point(y, x, outer_track)
 
     # arg0 = int(round(float(argv[0]) / 0.01))
     # arg1 = int(round(float(argv[1]) / 0.01))
-    point_3 = get_point_to_distance(inner_track, (y, x), point_2, 25)
+    # point_3 = get_point_to_distance(inner_track, (y, x), point_2, 50)
+    point_3 = get_point_to_distance(outer_track, (y, x), point_2, 20)
+
+    distance = np.sqrt((point_3[0] - x)**2 + (point_3[1] - y)**2)
+    print("Distance to calculated point:", distance * 0.01)
 
     plt.scatter([point_3[0]], [point_3[1]], c='b', s=40)
     # coords, distance = get_closest_point(argv[0], argv[1], outer_track)
