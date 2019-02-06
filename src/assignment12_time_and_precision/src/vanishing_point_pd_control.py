@@ -24,8 +24,7 @@ from std_msgs.msg import String
 import math
 
 from assignment12_time_and_precision.msg import LineSet, Line
-from assignment12_time_and_precision.src.vanishing_point_detection import LaneDetection
-from assignment12_time_and_precision.src import vanishing_point_detection
+from vanishing_point_detection import LaneDetection
 
 
 CONTROLLER_SKIP_RATE = 2
@@ -97,7 +96,7 @@ class PDController:
         #=============================
         # New approach:
         # Drive between two lines: side line and dashed line to stay inside the road 
-        van_point_x, van_point_y = LaneDetection.vanishing_point(data[0], data[1])
+        van_point_x, van_point_y = LaneDetection.vanishing_point(data.line_set[0], data.line_set[1])
         
         # guide line
         line1 = data[0]
