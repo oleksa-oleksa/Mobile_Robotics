@@ -2,7 +2,7 @@
 <launch>
 
 	<node name="pd_controller" pkg="assignment12_time_and_precision"
-		type="line_detection_pd_control.py" output="screen">
+		type="vanishing_point_pd_control.py" output="screen">
 		<param name="buffer_size" type="int" value="52428800" />
 	</node>
 	

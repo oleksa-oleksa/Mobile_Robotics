@@ -62,7 +62,8 @@ class lane_detection:
         # Bitwise-AND mask and original image
         res = cv2.bitwise_and(img, img, mask=mask)
                 
-        segs = ld.line_segments(mask, 3)
+        # we want to find the side line and dash line
+        segs = ld.line_segments(mask, 2)
      
         detected_lines = []
         
