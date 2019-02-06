@@ -23,7 +23,7 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment12_time_and_precision.msg import LineSet
+from assignment12_time_and_precision.msg import LineSet, Line
 from assignment12_time_and_precision.src.vanishing_point_detection import LaneDetection
 from assignment12_time_and_precision.src import vanishing_point_detection
 
@@ -90,11 +90,26 @@ class PDController:
         
     def callback(self, data):
         
+        # Old approach:
         # Folow the one line
         #angle_to_closest_line = min(map(angle_to_line, data.lines), key=abs)
         
-        # Drive between two lines
-        _, detection_row = LaneDetection.vanishing_point(data[0], data[1])
+        #=============================
+        # New approach:
+        # Drive between two lines: side line and dashed line to stay inside the road 
+        van_point_x, van_point_y = LaneDetection.vanishing_point(data[0], data[1])
+        
+        # guide line
+        line1 = data[0]
+        line2 = data[1]
+        center_point_x = abs((line2[1][0] - line1[1][0])) / 2 + line1[1][0]
+        guide_line = Line()
+        guide_line.slope = LaneDetection.get_slope(center_point_x, data[0].height, van_point_x, van_point_y)
+        guide_line.intercept = LaneDetection.get_intercept(van_point_x, van_point_y, guide_line.slope)
+        guide_line.height = data[0].height
+        guide_line.width = data[0].width
+        
+        detection_row = guide_line.height - van_point_y
         angle_to_guide_line = angle_to_guide_line(data[2], detection_row)
 
         self.projected_direction += angle_to_guide_line

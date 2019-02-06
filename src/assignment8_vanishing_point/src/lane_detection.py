@@ -131,6 +131,7 @@ class LaneDetection:
 
         line_array = LineArray()
         counter = 1
+        print("Segments len: ", len(segments))
         for segment in segments:
             m, b = self.ransac_method(segment)
             print("Equation line %d: y1 = %fx + %f" % (counter, m, b))

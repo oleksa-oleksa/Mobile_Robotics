@@ -6,8 +6,8 @@
 		<param name="buffer_size" type="int" value="52428800" />
 	</node>
 	
-	<node name="vanishing_point_detection" pkg="assignment12_time_and_precision"
-		type="vanishing_point_detection.py" output="screen">
+	<node name="lane_detection" pkg="assignment12_time_and_precision"
+		type="lane_detection.py" output="screen">
 		<param name="buffer_size" type="int" value="52428800" />
 
 	</node>

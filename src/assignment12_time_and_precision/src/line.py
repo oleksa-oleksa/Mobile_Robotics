@@ -123,8 +123,8 @@ def show_lines(img, lines):
     img = img.copy()
     
     for line in lines:
-        l0 = tuple(int(c) for c in line[0])
-        l1 = tuple(int(c) for c in line[1])
+        l0 = tuple(int(c) for c in line[0][0])
+        l1 = tuple(int(c) for c in line[0][1])
         cv2.arrowedLine(img, l0, l1, (255, 0, 0), 5)
 
     return img
