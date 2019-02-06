@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+	<node name="car_position" pkg="assignment10"
+		type="car_position.py" output="screen">
+	</node>
+	<node name="car_drive" pkg="assignment10"
+		type="car_drive.py" output="screen">
+	</node>
+</launch>
