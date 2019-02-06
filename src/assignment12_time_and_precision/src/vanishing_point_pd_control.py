@@ -29,7 +29,7 @@ from vanishing_point_detection import LaneDetection
 
 CONTROLLER_SKIP_RATE = 2
 
-def angle_to_guide_line(line, detection_row):
+def get_angle_to_guide_line(line, detection_row):
     lane_slope = line.slope
     lane_intercept = line.intercept
 
@@ -96,20 +96,32 @@ class PDController:
         #=============================
         # New approach:
         # Drive between two lines: side line and dashed line to stay inside the road 
-        van_point_x, van_point_y = LaneDetection.vanishing_point(data.line_set[0], data.line_set[1])
+        
+        line1 = data.line_set[0]
+        line1 = LaneDetection.end_start_points(
+            line1.slope,
+            line1.intercept,
+            line1.width)
+            
+        line2 = data.line_set[1]
+        line2 = LaneDetection.end_start_points(
+            line2.slope,
+            line2.intercept,
+            line2.width)
+        
+        van_point_x, van_point_y = LaneDetection.vanishing_point(line1, line2)
         
         # guide line
-        line1 = data[0]
-        line2 = data[1]
+        
         center_point_x = abs((line2[1][0] - line1[1][0])) / 2 + line1[1][0]
         guide_line = Line()
-        guide_line.slope = LaneDetection.get_slope(center_point_x, data[0].height, van_point_x, van_point_y)
+        guide_line.slope = LaneDetection.get_slope(center_point_x, data.line_set[0].height, van_point_x, van_point_y)
         guide_line.intercept = LaneDetection.get_intercept(van_point_x, van_point_y, guide_line.slope)
-        guide_line.height = data[0].height
-        guide_line.width = data[0].width
+        guide_line.height = data.line_set[0].height
+        guide_line.width = data.line_set[0].width
         
         detection_row = guide_line.height - van_point_y
-        angle_to_guide_line = angle_to_guide_line(data[2], detection_row)
+        angle_to_guide_line = get_angle_to_guide_line(guide_line, detection_row)
 
         self.projected_direction += angle_to_guide_line
         self.counter += 1
