@@ -118,13 +118,20 @@ def end_start_points(m, b, height):
     
     return ((x1, y1), (x2, y2))
 
+def draw_lines(img, lines):
+    for l in lines:
+        x1 = int(-l.intercept/l.slope)
+        x2 = int((l.height-l.intercept)/l.slope)
+        cv2.arrowedLine(img, (x1, 0), (x2, l.height), (255, 0, 0), 5)
+    return img    
+
 def show_lines(img, lines):
     
     img = img.copy()
     
     for line in lines:
-        l0 = tuple(int(c) for c in line[0][0])
-        l1 = tuple(int(c) for c in line[0][1])
+        l0 = tuple(int(c) for c in line[0])
+        l1 = tuple(int(c) for c in line[1])
         cv2.arrowedLine(img, l0, l1, (255, 0, 0), 5)
 
     return img

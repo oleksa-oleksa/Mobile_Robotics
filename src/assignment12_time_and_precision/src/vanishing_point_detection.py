@@ -52,6 +52,7 @@ class LaneDetection:
 
     @staticmethod
     def vanishing_point(line1, line2):
+        
         x1 = line1[0][1]
         x2 = line1[1][1]
         y1 = line1[0][0]

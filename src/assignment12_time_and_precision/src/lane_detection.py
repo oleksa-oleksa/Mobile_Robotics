@@ -81,8 +81,7 @@ class lane_detection:
             detected_lines.append(line_parameters)
                              
         
-        #ransac_lines = ld.show_lines(img, detected_lines)
-        ransac_lines = img 
+        ransac_lines = ld.draw_lines(img, detected_lines)
             
         try:
             # Ransac 
