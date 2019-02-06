@@ -5,7 +5,7 @@ from sklearn.linear_model import RANSACRegressor
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from assignment8.msg import Line, LineArray
+from assignment12_time_and_precision.msg import Line, LineSet
 
 import sys
 
@@ -15,7 +15,7 @@ class LaneDetection:
     def __init__(self):
         print("Hola mundo")
         self.camera_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback, queue_size=1)
-        self.line_pub = rospy.Publisher("/line_parameters", LineArray, queue_size=1)
+        self.line_pub = rospy.Publisher("/line_parameters", LineSet, queue_size=1)
         self.bridge = CvBridge()
 
     @staticmethod
@@ -103,7 +103,7 @@ class LaneDetection:
 
 
     def callback(self, data):
-        print("New image received")
+        #print("New image received")
         try:
             # Camera
             img = self.bridge.imgmsg_to_cv2(data, "rgb8")
@@ -129,11 +129,11 @@ class LaneDetection:
 
         segments = self.line_segments(mask)
 
-        line_array = LineArray()
+        line_array = LineSet()
         counter = 1
         for segment in segments:
             m, b = self.ransac_method(segment)
-            print("Equation line %d: y1 = %fx + %f" % (counter, m, b))
+            #print("Equation line %d: y1 = %fx + %f" % (counter, m, b))
             # creating the custom message
             line_parameters = Line()
             line_parameters.slope = m

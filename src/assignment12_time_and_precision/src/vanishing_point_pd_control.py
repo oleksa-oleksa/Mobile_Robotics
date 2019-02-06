@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 '''
-The Algorithm:
-* Launch the lane_detection node and get the line equation with Ransac (assignment 6). 
-* New feature added: custom message type Line for detected slope and intercept
-* Calculate an error using PD controller from line parameters (new code created for assignment 7)
-* Create a command for an actuator (code from assignment 6)
-* Start a mobile robot with a manual speed control publisher from a terminal window
-* Detect the new line position and calculate a new error and a new command and perform the next movement
-
 Use rostopic pub /manual_control/speed std_msgs/Int16 to start a car with a fixed speed
 '''
 
@@ -19,6 +11,7 @@ import rospy
 #python imports
 import sys
 import cv2
+import vanishing_point_detection as vanish
 from matplotlib import pyplot as plt
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -30,10 +23,30 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment7_line_detection_pd_control.msg import Line
+from assignment12_time_and_precision.msg import LineSet
+from assignment12_time_and_precision.src.vanishing_point_detection import LaneDetection
+from assignment12_time_and_precision.src import vanishing_point_detection
 
 
 CONTROLLER_SKIP_RATE = 2
+
+def angle_to_guide_line(line, detection_row):
+    lane_slope = line.slope
+    lane_intercept = line.intercept
+
+    image_width = line.width
+    image_height = line.height
+    
+    # Point along the detection line that's used as an anchor
+    detection_point = image_width/2
+    detection_row = image_height - detection_row
+
+    # Image column where detected lane line actually crosses detection line
+    intersection_point = (detection_row - lane_intercept)/lane_slope
+
+    opp = detection_point-intersection_point
+    adj = image_height - detection_row
+    return math.degrees(math.atan(float(opp)/adj))
 
 def angle_to_line(line):
     lane_slope = line.slope
@@ -58,7 +71,7 @@ def angle_to_line(line):
 class PDController:
     def __init__(self):
         # Get the line parameters of detected line 
-        self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
+        self.pd_controller_sub = rospy.Subscriber("/line_parameters", LineSet, self.callback, queue_size=1)
 
         # Solution: publish direct the steering command
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
@@ -77,9 +90,14 @@ class PDController:
         
     def callback(self, data):
         
-        angle_to_closest_line = min(map(angle_to_line, data.lines), key=abs)
+        # Folow the one line
+        #angle_to_closest_line = min(map(angle_to_line, data.lines), key=abs)
         
-        self.projected_direction += angle_to_closest_line
+        # Drive between two lines
+        _, detection_row = LaneDetection.vanishing_point(data[0], data[1])
+        angle_to_guide_line = angle_to_guide_line(data[2], detection_row)
+
+        self.projected_direction += angle_to_guide_line
         self.counter += 1
 
         if self.counter < CONTROLLER_SKIP_RATE:
