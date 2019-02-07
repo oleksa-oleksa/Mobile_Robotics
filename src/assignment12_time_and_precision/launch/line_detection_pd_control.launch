@@ -6,7 +6,7 @@
 		<param name="buffer_size" type="int" value="52428800" />
 	</node>
 	
-	<node name="lane_detector" pkg="assignment12_time_and_precision"
+	<node name="lane_detection" pkg="assignment12_time_and_precision"
 		type="lane_detection.py" output="screen">
 		<param name="buffer_size" type="int" value="52428800" />
 

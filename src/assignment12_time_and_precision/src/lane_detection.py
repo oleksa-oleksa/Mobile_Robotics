@@ -81,14 +81,14 @@ class lane_detection:
             detected_lines.append(line_parameters)
                              
         
-        ransac_lines = ld.show_lines(img, detected_lines)
+        ransac_lines = ld.draw_lines(img, detected_lines)
             
         try:
             # Ransac 
             img = self.bridge.cv2_to_imgmsg(ransac_lines, "rgb8")
             self.lane_detection_pub.publish(img)
             line_set = LineSet()
-            line_set.lines = detected_lines
+            line_set.line_set = detected_lines
             self.line_parameters_pub.publish(line_set)
              
         except CvBridgeError as e:
