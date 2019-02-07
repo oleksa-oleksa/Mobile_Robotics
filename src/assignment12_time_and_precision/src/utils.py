@@ -64,9 +64,9 @@ class LaneDetection:
 
         # Find the intersection point
         x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / (
-                    (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+                (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
         y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / (
-                    (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+                (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
 
         return x, y
 
@@ -102,8 +102,6 @@ class LaneDetection:
         guide_line.width = img.shape[1]
 
         return guide_line
-
-
 
     def callback(self, data):
         print("New image received")

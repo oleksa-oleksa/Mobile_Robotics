@@ -30,7 +30,7 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment7_line_detection_pd_control.msg import Line
+from assignment12_time_and_precision.msg import LineSet
 
 
 CONTROLLER_SKIP_RATE = 2

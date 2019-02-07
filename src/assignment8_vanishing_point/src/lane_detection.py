@@ -16,11 +16,13 @@ class LaneDetection:
         print("Hola mundo")
         self.camera_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback, queue_size=1)
         self.line_pub = rospy.Publisher("/line_parameters", LineArray, queue_size=1)
+        self.pub_img_lines = rospy.Publisher("/image_processing/bin_img", Image, queue_size=1)
+
         self.bridge = CvBridge()
 
     @staticmethod
     def line_segments(img):
-        (_, contours, _) = cv2.findContours(img.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        (contours, _) = cv2.findContours(img.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:2]
 
         return contours[:2]
@@ -86,8 +88,8 @@ class LaneDetection:
         print('Vanishing point: x = %f and y = %f' % (van_point_x, van_point_y))
         center_point_x = abs((line2[1][0] - line1[1][0])) / 2 + line1[1][0]
         print('Center point x = %f, y = %f' % (center_point_x, img.shape[0]))
-        cv2.circle(img, (van_point_y, van_point_x), 10, (0, 255, 0))
-        cv2.circle(img, (center_point_x, img.shape[0]), 10, (0, 255, 0))
+        cv2.circle(img, (van_point_y, van_point_x), 20, (0, 255, 0), 1)
+        # cv2.circle(img, (center_point_x, img.shape[0]), 10, (0, 255, 0))
         # cv2.imshow('img', img)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
@@ -110,8 +112,8 @@ class LaneDetection:
         except CvBridgeError as e:
             print(e)
 
-        # pub_img_lines = rospy.Publisher("/image_processing/bin_img", Image, queue_size=1)
 
+        #
         # Crop 20% of the image along the y axis
         y_end = np.shape(img)[0]
         y_start = (np.shape(img)[0] * 0.2)
@@ -120,9 +122,9 @@ class LaneDetection:
         # Convert RGB to HSV
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        # define range of color in HSV
-        lower = np.array([0, 40, 150])
-        upper = np.array([18, 80, 255])
+        sensitivity = 100
+        lower = np.array([0, 0, 255 - sensitivity])
+        upper = np.array([255, sensitivity, 255])
 
         # Threshold the HSV image to get only the lines colors
         mask = cv2.inRange(hsv, lower, upper)
@@ -158,6 +160,19 @@ class LaneDetection:
 
         print("Guide line slope = %f and Intercept = %f" % (guide_line.slope, guide_line.intercept))
         line_array.lines.append(guide_line)
+
+        cv2.imwrite("/home/piotr/Desktop/Robotics/catkin_ws_user/src/assignment8_vanishing_point/src/my_img.jpg", img)
+
+        try:
+            helper = self.bridge.cv2_to_imgmsg(img, "rgb8")
+
+            self.pub_img_lines.publish(helper)
+            print("Published")
+        except Exception as e:
+            print "Not Published"
+            print e
+
+
 
         self.line_pub.publish(line_array)
 
