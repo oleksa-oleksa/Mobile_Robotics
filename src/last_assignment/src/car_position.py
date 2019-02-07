@@ -6,12 +6,14 @@ from last_assignment.msg import Coordinate
 from tf.transformations import euler_from_quaternion
 from helper import CURRENT_CATKIN_WS_DIRECTORY
 
+CAR_IP_NUMBER = 4
+
 
 class CarPosition:
     def __init__(self):
         self.inner_track = utils.calculate_shape(26)
         self.outer_track = utils.calculate_shape(29)
-        self.sub_odom = rospy.Subscriber("/localization/odom/12", Odometry, self.odom_callback, queue_size=1)
+        self.sub_odom = rospy.Subscriber("/localization/odom/" + CAR_IP_NUMBER, Odometry, self.odom_callback, queue_size=1)
         self.coordinates_pub = rospy.Publisher("/expected_coordinates", Coordinate, queue_size=1)
 
         self.distance = 50
