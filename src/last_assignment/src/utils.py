@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-from helper import CURRENT__CATKIN_WS_DIRECTORY
+from helper import CURRENT_CATKIN_WS_DIRECTORY
 # from tf.transformations import euler_from_quaternion
 
-img = cv2.imread(CURRENT_DIRECTORY + 'map.jpeg')
+img = cv2.imread(CURRENT_CATKIN_WS_DIRECTORY + 'last_assignment/src/map.jpeg')
 gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 black = np.zeros(gray.shape)
 
@@ -119,7 +119,7 @@ def find_main_parts(cnt):
 
 def calculate_shape(contour_id):
     # Load the image and convert it to gray
-    img = cv2.imread(CURRENT__CATKIN_WS_DIRECTORY + 'src/assignment9/src/map.jpeg')
+    img = cv2.imread(CURRENT_CATKIN_WS_DIRECTORY + 'src/assignment9/src/map.jpeg')
 
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 

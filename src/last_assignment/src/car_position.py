@@ -4,7 +4,7 @@ import utils
 from nav_msgs.msg import Odometry
 from last_assignment.msg import Coordinate
 from tf.transformations import euler_from_quaternion
-from helper import CURRENT__CATKIN_WS_DIRECTORY
+from helper import CURRENT_CATKIN_WS_DIRECTORY
 
 
 class CarPosition:
@@ -15,7 +15,7 @@ class CarPosition:
         self.coordinates_pub = rospy.Publisher("/expected_coordinates", Coordinate, queue_size=1)
 
         self.distance = 50
-        f = open(CURRENT__CATKIN_WS_DIRECTORY + 'src/assignment9/src/final_coords.txt', 'r+')
+        f = open(CURRENT_CATKIN_WS_DIRECTORY + 'src/assignment9/src/final_coords.txt', 'r+')
         f.truncate(0)
         f.write('current_x, current_y, closest_x, closest_y, expected_x, expected_y, distance\n')
         f.close()
@@ -70,7 +70,7 @@ class CarPosition:
             expected_point_inner[1],
             distance_inner
         ))
-        with open(CURRENT__CATKIN_WS_DIRECTORY + 'src/assignment10/src/final_coords.txt', 'a') as out:
+        with open(CURRENT_CATKIN_WS_DIRECTORY + 'src/assignment10/src/final_coords.txt', 'a') as out:
             out.write(info)
 
 
