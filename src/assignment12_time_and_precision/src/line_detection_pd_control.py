@@ -33,7 +33,7 @@ import math
 from assignment12_time_and_precision.msg import LineSet
 
 
-CONTROLLER_SKIP_RATE = 2
+CONTROLLER_SKIP_RATE = 10
 
 def angle_to_line(line):
     lane_slope = line.slope
