@@ -6,18 +6,18 @@ from last_assignment.msg import Coordinate
 from tf.transformations import euler_from_quaternion
 from helper import CURRENT_CATKIN_WS_DIRECTORY
 
-CAR_IP_NUMBER = 4
+CAR_IP_NUMBER = 11
 
 
 class CarPosition:
     def __init__(self):
         self.inner_track = utils.calculate_shape(26)
         self.outer_track = utils.calculate_shape(29)
-        self.sub_odom = rospy.Subscriber("/localization/odom/" + CAR_IP_NUMBER, Odometry, self.odom_callback, queue_size=1)
+        self.sub_odom = rospy.Subscriber("/localization/odom/{11}", Odometry, self.odom_callback, queue_size=1)
         self.coordinates_pub = rospy.Publisher("/expected_coordinates", Coordinate, queue_size=1)
 
         self.distance = 50
-        f = open(CURRENT_CATKIN_WS_DIRECTORY + 'src/assignment9/src/final_coords.txt', 'r+')
+        f = open('/home/oleksandra/Documents/catkin_ws_user/src/assignment9/src/final_coords.txt', 'r+')
         f.truncate(0)
         f.write('current_x, current_y, closest_x, closest_y, expected_x, expected_y, distance\n')
         f.close()
@@ -72,7 +72,7 @@ class CarPosition:
             expected_point_inner[1],
             distance_inner
         ))
-        with open(CURRENT_CATKIN_WS_DIRECTORY + 'src/assignment10/src/final_coords.txt', 'a') as out:
+        with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment9/src/final_coords.txt', 'a') as out:
             out.write(info)
 
 
