@@ -4,10 +4,10 @@ import math
 import xml.etree.ElementTree as ET
 from sklearn import linear_model
 
-max_left = None
-max_right = None
-slope_steer = None
-intercept_steer = None
+max_left = -25.506759617569223
+max_right = 25.563318564683392
+slope_steer = 200.821007
+intercept_steer = 89.599119
 
 def ransac_method(commands):
     """
@@ -42,6 +42,7 @@ def get_actuator_command(angle):
     angle = math.radians(angle)
     
     command = slope_steer * angle + intercept_steer
+    print("car_drive: actuator_command:", command)
     return int(command)
 
 #=========================
@@ -57,7 +58,7 @@ def parse_xml(file_name):
     return commands
 
 def calibrate_steer():
-    file_name = '/home/oleksandra/Documents/catkin_ws_user/src/assignment7_line_detection_pd_control/src/SteerAngleActuator_121.xml'
+    file_name = '/home/adripinto/catkin_ws_user/src/last_assignment/src/SteerAngleActuator_121.xml'
     commands = parse_xml(file_name)
     
     global slope_steer, intercept_steer
@@ -68,3 +69,13 @@ def calibrate_steer():
     global max_left, max_right
     max_left = math.degrees((179-intercept_steer)/slope_steer)
     max_right = math.degrees(-intercept_steer/slope_steer)
+
+    print("max_left", max_left, "max_right", max_right)
+
+
+def main():
+    calibrate_steer()
+
+
+if __name__== "__main__":
+  main()

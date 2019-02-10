@@ -3,10 +3,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-from helper import CURRENT_CATKIN_WS_DIRECTORY
 # from tf.transformations import euler_from_quaternion
 
-img = cv2.imread('/home/oleksandra/Documents/catkin_ws_user/src/last_assignment/src/map.jpeg')
+img = cv2.imread('/home/adripinto/catkin_ws_user/src/assignment9/src/map.jpeg')
 gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 black = np.zeros(gray.shape)
 
@@ -119,7 +118,7 @@ def find_main_parts(cnt):
 
 def calculate_shape(contour_id):
     # Load the image and convert it to gray
-    img = cv2.imread('/home/oleksandra/Documents/catkin_ws_user/src/assignment9/src/map.jpeg')
+    img = cv2.imread('/home/adripinto/catkin_ws_user/src/assignment9/src/map.jpeg')
 
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
@@ -251,23 +250,23 @@ def perpendicular_point(proj_x, proj_y, lane_x, lane_y, dist):
     aux = dist / (np.sqrt((lane_y - proj_y)**2 + (proj_x - lane_x)**2))
     if check_x < 0 and check_y < 0:
         perp_x = proj_x + (aux * (proj_x - lane_x))
-        if proj_x < perp_x < proj_x + 10:
+        if proj_x < perp_x < proj_x + 20:
             perp_x += dist
         if proj_x - 10 < perp_x < proj_x:
             perp_x -= dist
         perp_y = proj_y + (aux * (lane_y - proj_y))
-        if proj_y < perp_y < proj_y + 10:
+        if proj_y < perp_y < proj_y + 20:
             perp_y += dist
         if proj_y - 10 < perp_y < proj_y:
             perp_y -= dist
         return perp_x, perp_y
     perp_x = proj_x - (aux * (proj_x - lane_x))
-    if proj_x < perp_x < proj_x + 10:
+    if proj_x < perp_x < proj_x + 20:
         perp_x += dist
     if proj_x - 10 < perp_x < proj_x:
         perp_x -= dist
     perp_y = proj_y - (aux * (lane_y - proj_y))
-    if proj_y < perp_y < proj_y + 10:
+    if proj_y < perp_y < proj_y + 20:
         perp_y += dist
     if proj_y - 10 < perp_y < proj_y:
         perp_y -= dist
@@ -289,8 +288,8 @@ def get_world_coordinates(theta, trans_x, trans_y, point_x, point_y):
 def main(argv):
     # x = int(round(float(argv[0]) / 0.01))
     # y = int(round(float(argv[1]) / 0.01))
-    x = int(round(2 / 0.01))
-    y = int(round(2 / 0.01))
+    x = int(round(5.09 / 0.01))
+    y = int(round(2.1 / 0.01))
     plt.scatter([y], [x], c='r', s=40)
     inner_track = calculate_shape(26)
     print(inner_track)
@@ -303,6 +302,8 @@ def main(argv):
     point_3 = get_point_to_distance(inner_track, (y, x), point_2, 25)
 
     plt.scatter([point_3[0]], [point_3[1]], c='b', s=40)
+    print("point3:", point_3)
+    print("point2:", point_2)
 
     perp_point = perpendicular_point(point_3[0], point_3[1], point_2[0], point_2[1], 50)
     print("perp_point: ", perp_point)
