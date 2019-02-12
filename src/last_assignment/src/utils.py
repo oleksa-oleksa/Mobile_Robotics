@@ -288,8 +288,8 @@ def get_world_coordinates(theta, trans_x, trans_y, point_x, point_y):
 def main(argv):
     # x = int(round(float(argv[0]) / 0.01))
     # y = int(round(float(argv[1]) / 0.01))
-    x = int(round(5.09 / 0.01))
-    y = int(round(2.1 / 0.01))
+    x = int(round(0.74 / 0.01))
+    y = int(round(2.14 / 0.01))
     plt.scatter([y], [x], c='r', s=40)
     inner_track = calculate_shape(26)
     print(inner_track)

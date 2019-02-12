@@ -18,7 +18,7 @@ class ScanObstacles:
         self.min_distance = 100
         self.min_dist_obst_to_lane = 1.5
         self.dist_car_to_obs = 65
-        self.lane_pub = rospy.Publisher("/lane_switcher", String, queue_size=1)
+        self.lane_pub = rospy.Publisher("/lane_switcher", Coordinate, queue_size=1)
 
     def callback(self, scan):
 
@@ -88,22 +88,26 @@ class ScanObstacles:
         # (in front of your vehicle, w.r.t. the lane on which you want to drive), switch lanes -
         # but do not switch lanes if there is an obstacle on both lanes - then your car should stop.
 
+        expected_coordinates = car_position
+
         print("scan_results: ", car_position.distance_to_inner, car_position.distance_to_outer)
         if dist_to_obst_inner <= self.dist_car_to_obs and dist_to_obst_outer <= self.dist_car_to_obs:
-            self.lane_pub.publish("stop")
+            expected_coordinates.lane = "stop"
             print("scan_result: Obstacles on the track. Car had to stop")
         elif dist_to_obst_inner <= self.dist_car_to_obs:
-            self.lane_pub.publish("outer")
+            expected_coordinates.lane = "outer"
             print("scan_result: Change to outer lane")
         elif dist_to_obst_outer <= self.dist_car_to_obs:
-            self.lane_pub.publish("inner")
+            expected_coordinates.lane = "inner"
             print("scan_result: change to inner lane")
         elif car_position.distance_to_inner < car_position.distance_to_outer:
-            self.lane_pub.publish("inner")
+            expected_coordinates.lane = "inner"
             print("scan_result: change to inner lane")
         else:
-            self.lane_pub.publish("outer")
+            expected_coordinates.lane = "outer"
             print("scan_result: change to outer lane")
+
+        self.lane_pub.publish(expected_coordinates)
 
 
 def main():

@@ -10,7 +10,7 @@ class CarPosition:
     def __init__(self):
         self.inner_track = utils.calculate_shape(26)
         self.outer_track = utils.calculate_shape(29)
-        self.sub_odom = rospy.Subscriber("/localization/odom/11", Odometry, self.odom_callback, queue_size=1)
+        self.sub_odom = rospy.Subscriber("/localization/odom/3", Odometry, self.odom_callback, queue_size=1)
         self.coordinates_pub = rospy.Publisher("/expected_coordinates", Coordinate, queue_size=1)
 
         self.distance = 50
