@@ -9,7 +9,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from sklearn import linear_model
-from assignment7_line_detection_smallest_angle.msg import Line, LineSet
+from assignment12_time_and_precision.msg import Line, LineSet
 
 #from assignment7_line_detection_pd_control.msg import Drive
 #from assignment7_line_detection_pd_control.srv import CarMovement
@@ -18,7 +18,6 @@ from assignment7_line_detection_smallest_angle.msg import Line, LineSet
 class lane_detection:
     def __init__(self):
         self.lane_detection_pub = rospy.Publisher("/image_processing/lane", Image, queue_size=10)
-        self.bw_detection_pub = rospy.Publisher("/image_processing/bw_contours", Image, queue_size=10)
         self.line_parameters_pub = rospy.Publisher("/line_parameters", LineSet, queue_size=10)
         
         self.bridge = CvBridge()
@@ -32,7 +31,15 @@ class lane_detection:
         except CvBridgeError as e:
             print(e)
         
+        # Test
+#         print("Test case")
+#         img = cv2.imread('one_line.jpg', 1)
+#         
+        # Crop 20% of the image along the y axis
         im_h, im_w, _ = img.shape
+#         y_end = im_h
+#         y_start = (im_h * 0.2)
+#         img = img[int(y_start): int(y_end), :]
      
         # Convert RGB to HSV
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -44,19 +51,18 @@ class lane_detection:
      
         # Threshold the HSV image to get only the lines colors
         mask = cv2.inRange(hsv, lower, upper)
-        mask_pub = mask
+              
         # Fill the 2/5 of picture with a black color
         h, w = mask.shape
-        cv2.rectangle(mask, (0,0), (w, 3*h/4), 0, cv2.FILLED)
-        cv2.rectangle(mask, (0,0), (w/4, h), 0, cv2.FILLED)
-        cv2.rectangle(mask, (w/2,0), (w/2, h), 0, cv2.FILLED)
+        cv2.rectangle(mask, (0,0), (w, 2*h/5), 0, cv2.FILLED)
+        cv2.rectangle(mask, (0,0), (w/5, h), 0, cv2.FILLED)
+        cv2.rectangle(mask, (4*w/5,0), (4*w/5, h), 0, cv2.FILLED)
 
      
         # Bitwise-AND mask and original image
         res = cv2.bitwise_and(img, img, mask=mask)
-        
-        # we want to find the side line and dash line
-        segs = ld.line_segments(mask, 2)
+                
+        segs = ld.line_segments(mask, 3)
      
         detected_lines = []
         
@@ -74,17 +80,14 @@ class lane_detection:
             detected_lines.append(line_parameters)
                              
         
-        ransac_lines = ld.draw_lines(img, detected_lines)
+        ransac_lines = ld.show_lines(img, detected_lines)
             
         try:
             # Ransac 
             img = self.bridge.cv2_to_imgmsg(ransac_lines, "rgb8")
-            bw_img = self.bridge.cv2_to_imgmsg(mask, "mono8")
-            
             self.lane_detection_pub.publish(img)
-            self.bw_detection_pub.publish(bw_img)
             line_set = LineSet()
-            line_set.line_set = detected_lines
+            line_set.lines = detected_lines
             self.line_parameters_pub.publish(line_set)
              
         except CvBridgeError as e:

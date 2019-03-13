@@ -30,10 +30,10 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment12_time_and_precision.msg import LineSet
+from assignment7_line_detection_smallest_angle.msg import LineSet
 
 
-CONTROLLER_SKIP_RATE = 10
+CONTROLLER_SKIP_RATE = 50
 
 def angle_to_line(line):
     lane_slope = line.slope

@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 '''
+The Algorithm:
+* Launch the lane_detection node and get the line equation with Ransac (assignment 6). 
+* New feature added: custom message type Line for detected slope and intercept
+* Calculate an error using PD controller from line parameters (new code created for assignment 7)
+* Create a command for an actuator (code from assignment 6)
+* Start a mobile robot with a manual speed control publisher from a terminal window
+* Detect the new line position and calculate a new error and a new command and perform the next movement
+
 Use rostopic pub /manual_control/speed std_msgs/Int16 to start a car with a fixed speed
 '''
 
@@ -11,7 +19,6 @@ import rospy
 #python imports
 import sys
 import cv2
-import vanishing_point_detection as vanish
 from matplotlib import pyplot as plt
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -23,29 +30,10 @@ from std_msgs.msg import UInt8
 from std_msgs.msg import String
 import math
 
-from assignment7_line_detection_smallest_angle.msg import LineSet, Line
-from vanishing_point_detection import LaneDetection
+from assignment7_line_detection_pd_control.msg import Line
 
 
 CONTROLLER_SKIP_RATE = 2
-
-def get_angle_to_guide_line(line, detection_row):
-    lane_slope = line.slope
-    lane_intercept = line.intercept
-
-    image_width = line.width
-    image_height = line.height
-    
-    # Point along the detection line that's used as an anchor
-    detection_point = image_width/2
-    detection_row = image_height - detection_row
-
-    # Image column where detected lane line actually crosses detection line
-    intersection_point = (detection_row - lane_intercept)/lane_slope
-
-    opp = detection_point-intersection_point
-    adj = image_height - detection_row
-    return math.degrees(math.atan(float(opp)/adj))
 
 def angle_to_line(line):
     lane_slope = line.slope
@@ -70,7 +58,7 @@ def angle_to_line(line):
 class PDController:
     def __init__(self):
         # Get the line parameters of detected line 
-        self.pd_controller_sub = rospy.Subscriber("/line_parameters", LineSet, self.callback, queue_size=1)
+        self.pd_controller_sub = rospy.Subscriber("/line_parameters", Line, self.callback, queue_size=1)
 
         # Solution: publish direct the steering command
         self.pub_steering = rospy.Publisher("steering", UInt8, queue_size=100)
@@ -89,41 +77,9 @@ class PDController:
         
     def callback(self, data):
         
-        # Old approach:
-        # Folow the one line
-        #angle_to_closest_line = min(map(angle_to_line, data.lines), key=abs)
+        angle_to_closest_line = min(map(angle_to_line, data.lines), key=abs)
         
-        #=============================
-        # New approach:
-        # Drive between two lines: side line and dashed line to stay inside the road 
-        
-        line1 = data.line_set[0]
-        line1 = LaneDetection.end_start_points(
-            line1.slope,
-            line1.intercept,
-            line1.width)
-            
-        line2 = data.line_set[1]
-        line2 = LaneDetection.end_start_points(
-            line2.slope,
-            line2.intercept,
-            line2.width)
-        
-        van_point_x, van_point_y = LaneDetection.vanishing_point(line1, line2)
-        
-        # guide line
-        
-        center_point_x = abs((line2[1][0] - line1[1][0])) / 2 + line1[1][0]
-        guide_line = Line()
-        guide_line.slope = LaneDetection.get_slope(center_point_x, data.line_set[0].height, van_point_x, van_point_y)
-        guide_line.intercept = LaneDetection.get_intercept(van_point_x, van_point_y, guide_line.slope)
-        guide_line.height = data.line_set[0].height
-        guide_line.width = data.line_set[0].width
-        
-        detection_row = guide_line.height - van_point_y
-        angle_to_guide_line = get_angle_to_guide_line(guide_line, detection_row)
-
-        self.projected_direction += angle_to_guide_line
+        self.projected_direction += angle_to_closest_line
         self.counter += 1
 
         if self.counter < CONTROLLER_SKIP_RATE:
@@ -149,7 +105,7 @@ class PDController:
         info = ("Projected direction: {:.2f}, error: {:.2f}, derivative: {:.2f}, control var: {:.2f}, steering_command {}\n".format(
             averaged_direction, self.pd_error, self.derivative, control_variable, steering_command))
         
-        with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment12_time_and_precision/src/pd_output.txt', 'a') as out:
+        with open('/home/oleksandra/Documents/catkin_ws_user/src/assignment7_line_detection_pd_control/src/pd_output.txt', 'a') as out:
             out.write(info)
 
         # Set only the wheel angle and use manual control publisher to start the car

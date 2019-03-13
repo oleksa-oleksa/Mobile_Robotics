@@ -5,7 +5,7 @@ from sklearn.linear_model import RANSACRegressor
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from assignment12_time_and_precision.msg import Line, LineSet
+from assignment7_line_detection_smallest_angle.msg import Line, LineSet
 
 import sys
 
