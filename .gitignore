@@ -5,4 +5,12 @@ odroid-build/
 build/
 devel/
 logs/
+<<<<<<< HEAD
 /.metadata/
+=======
+.metadata/
+.project
+.pydevproject
+*.pyc
+.idea
+>>>>>>> version-3

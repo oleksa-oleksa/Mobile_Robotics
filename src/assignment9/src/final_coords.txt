@@ -1,0 +1,1 @@
+current_x, current_y, closest_x, closest_y, expected_x, expected_y, distance

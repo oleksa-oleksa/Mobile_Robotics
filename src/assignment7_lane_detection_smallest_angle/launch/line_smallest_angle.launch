@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+
+	<node name="pd_controller" pkg="assignment7_lane_detection_smallest_angle"
+		type="line_detection_pd_control.py" output="screen">
+		<param name="buffer_size" type="int" value="52428800" />
+	</node>
+	
+	<node name="lane_detector" pkg="assignment7_lane_detection_smallest_angle"
+		type="lane_detection.py" output="screen">
+		<param name="buffer_size" type="int" value="52428800" />
+
+	</node>
+
+</launch>
+

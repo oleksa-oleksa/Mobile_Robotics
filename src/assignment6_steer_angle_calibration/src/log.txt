@@ -1,0 +1,109 @@
+Desired command angle=  0
+starting to drive: wall_dist: 1.512, wall_angle: -5.6 
+current wall dist: 1.551, dist diff: -0.039, angle diff: 6.0, current angle: 0.4, start angle: -5.6, turn radius: 0.374
+current wall dist: 1.625, dist diff: -0.113, angle diff: 13.0, current angle: 7.4, start angle: -5.6, turn radius: 0.500
+current wall dist: 1.686, dist diff: -0.174, angle diff: 17.7, current angle: 12.1, start angle: -5.6, turn radius: 0.566
+current wall dist: 1.708, dist diff: -0.196, angle diff: 22.8, current angle: 17.2, start angle: -5.6, turn radius: 0.498
+current wall dist: 1.737, dist diff: -0.225, angle diff: 24.7, current angle: 19.1, start angle: -5.6, turn radius: 0.530
+current wall dist: 1.791, dist diff: -0.280, angle diff: 32.3, current angle: 26.7, start angle: -5.6, turn radius: 0.511
+current wall dist: 1.031, dist diff: 0.481, angle diff: -49.1, current angle: -54.7, start angle: -5.6, turn radius: 0.670
+current wall dist: 1.028, dist diff: 0.484, angle diff: -46.7, current angle: -52.3, start angle: -5.6, turn radius: 0.698
+current wall dist: 1.034, dist diff: 0.478, angle diff: -42.1, current angle: -47.7, start angle: -5.6, turn radius: 0.744
+current wall dist: 1.049, dist diff: 0.463, angle diff: -38.7, current angle: -44.3, start angle: -5.6, turn radius: 0.771
+current wall dist: 1.077, dist diff: 0.435, angle diff: -31.0, current angle: -36.6, start angle: -5.6, turn radius: 0.871
+current wall dist: 1.068, dist diff: 0.444, angle diff: -26.9, current angle: -32.5, start angle: -5.6, turn radius: 1.011
+average turn radius: 0.645
+save_xml: item is found
+
+Desired command angle=  30
+starting to drive: wall_dist: 1.497, wall_angle: 1.4 
+current wall dist: 1.531, dist diff: -0.034, angle diff: 3.7, current angle: 5.1, start angle: 1.4, turn radius: 0.530
+current wall dist: 1.620, dist diff: -0.124, angle diff: 12.5, current angle: 13.9, start angle: 1.4, turn radius: 0.575
+current wall dist: 1.708, dist diff: -0.211, angle diff: 20.5, current angle: 21.8, start angle: 1.4, turn radius: 0.607
+current wall dist: 1.768, dist diff: -0.272, angle diff: 26.9, current angle: 28.3, start angle: 1.4, turn radius: 0.605
+current wall dist: 1.819, dist diff: -0.322, angle diff: 31.8, current angle: 33.2, start angle: 1.4, turn radius: 0.617
+current wall dist: 1.075, dist diff: 0.421, angle diff: -50.6, current angle: -49.3, start angle: 1.4, turn radius: 0.539
+current wall dist: 1.101, dist diff: 0.395, angle diff: -43.3, current angle: -41.9, start angle: 1.4, turn radius: 0.572
+current wall dist: 1.107, dist diff: 0.389, angle diff: -41.1, current angle: -39.7, start angle: 1.4, turn radius: 0.588
+current wall dist: 1.123, dist diff: 0.373, angle diff: -37.5, current angle: -36.1, start angle: 1.4, turn radius: 0.609
+current wall dist: 1.196, dist diff: 0.301, angle diff: -27.4, current angle: -26.0, start angle: 1.4, turn radius: 0.649
+current wall dist: 1.184, dist diff: 0.312, angle diff: -25.7, current angle: -24.3, start angle: 1.4, turn radius: 0.718
+average turn radius: 0.601
+save_xml: item is found
+
+Press any key to continue... 
+Desired command angle=  60
+starting to drive: wall_dist: 1.498, wall_angle: 0.4 
+current wall dist: 1.659, dist diff: -0.161, angle diff: 8.9, current angle: 9.4, start angle: 0.4, turn radius: 1.040
+current wall dist: 1.744, dist diff: -0.246, angle diff: 15.3, current angle: 15.7, start angle: 0.4, turn radius: 0.933
+current wall dist: 1.788, dist diff: -0.290, angle diff: 19.2, current angle: 19.6, start angle: 0.4, turn radius: 0.884
+current wall dist: 1.859, dist diff: -0.361, angle diff: 18.7, current angle: 19.1, start angle: 0.4, turn radius: 1.129
+current wall dist: 1.105, dist diff: 0.393, angle diff: -61.1, current angle: -60.6, start angle: 0.4, turn radius: 0.447
+current wall dist: 1.119, dist diff: 0.379, angle diff: -58.3, current angle: -57.8, start angle: 0.4, turn radius: 0.444
+current wall dist: 1.146, dist diff: 0.352, angle diff: -53.0, current angle: -52.6, start angle: 0.4, turn radius: 0.439
+current wall dist: 1.153, dist diff: 0.345, angle diff: -50.4, current angle: -50.0, start angle: 0.4, turn radius: 0.446
+current wall dist: 1.192, dist diff: 0.306, angle diff: -45.8, current angle: -45.4, start angle: 0.4, turn radius: 0.425
+current wall dist: 1.200, dist diff: 0.298, angle diff: -45.8, current angle: -45.4, start angle: 0.4, turn radius: 0.414
+current wall dist: 2.220, dist diff: -0.721, angle diff: 49.4, current angle: 49.8, start angle: 0.4, turn radius: 0.954
+Exception in Tkinter callback
+
+
+Desired command angle=  90
+starting to drive: wall_dist: 1.526, wall_angle: 1.5 
+current wall dist: 1.687, dist diff: -0.161, angle diff: 4.8, current angle: 6.2, start angle: 1.5, turn radius: 1.944
+current wall dist: 1.763, dist diff: -0.237, angle diff: 7.2, current angle: 8.7, start angle: 1.5, turn radius: 1.892
+current wall dist: 1.826, dist diff: -0.300, angle diff: 7.6, current angle: 9.1, start angle: 1.5, turn radius: 2.259
+current wall dist: 1.891, dist diff: -0.365, angle diff: 9.3, current angle: 10.7, start angle: 1.5, turn radius: 2.272
+current wall dist: 1.932, dist diff: -0.406, angle diff: 8.3, current angle: 9.7, start angle: 1.5, turn radius: 2.833
+current wall dist: 1.171, dist diff: 0.355, angle diff: -67.9, current angle: -66.5, start angle: 1.5, turn radius: 0.377
+current wall dist: 2.224, dist diff: -0.698, angle diff: 20.2, current angle: 21.6, start angle: 1.5, turn radius: 2.034
+current wall dist: 2.309, dist diff: -0.783, angle diff: 22.9, current angle: 24.4, start angle: 1.5, turn radius: 2.021
+average turn radius: 1.954
+
+Desired command angle=  120
+starting to drive: wall_dist: 1.520, wall_angle: 0.1 
+current wall dist: 1.862, dist diff: -0.342, angle diff: -4.9, current angle: -4.8, start angle: 0.1, turn radius: 4.026
+current wall dist: 1.966, dist diff: -0.446, angle diff: -5.8, current angle: -5.8, start angle: 0.1, turn radius: 4.385
+current wall dist: 2.028, dist diff: -0.508, angle diff: -4.9, current angle: -4.8, start angle: 0.1, turn radius: 5.959
+current wall dist: 2.106, dist diff: -0.585, angle diff: -5.8, current angle: -5.7, start angle: 0.1, turn radius: 5.842
+current wall dist: 2.172, dist diff: -0.652, angle diff: -6.7, current angle: -6.7, start angle: 0.1, turn radius: 5.548
+current wall dist: 2.260, dist diff: -0.740, angle diff: -6.4, current angle: -6.4, start angle: 0.1, turn radius: 6.595
+current wall dist: 2.261, dist diff: -0.741, angle diff: -6.7, current angle: -6.6, start angle: 0.1, turn radius: 6.376
+current wall dist: 2.337, dist diff: -0.817, angle diff: -7.6, current angle: -7.6, start angle: 0.1, turn radius: 6.164
+average turn radius: 5.612
+save_xml: item is found
+
+Desired command angle=  150
+starting to drive: wall_dist: 1.511, wall_angle: 2.9 
+current wall dist: 1.601, dist diff: -0.091, angle diff: -4.8, current angle: -1.9, start angle: 2.9, turn radius: 1.086
+current wall dist: 1.675, dist diff: -0.165, angle diff: -8.1, current angle: -5.3, start angle: 2.9, turn radius: 1.161
+current wall dist: 1.720, dist diff: -0.210, angle diff: -9.6, current angle: -6.7, start angle: 2.9, turn radius: 1.253
+current wall dist: 1.796, dist diff: -0.286, angle diff: -12.6, current angle: -9.7, start angle: 2.9, turn radius: 1.304
+current wall dist: 1.858, dist diff: -0.347, angle diff: -15.4, current angle: -12.5, start angle: 2.9, turn radius: 1.302
+current wall dist: 1.897, dist diff: -0.386, angle diff: -16.3, current angle: -13.4, start angle: 2.9, turn radius: 1.371
+current wall dist: 1.956, dist diff: -0.445, angle diff: -19.2, current angle: -16.4, start angle: 2.9, turn radius: 1.342
+current wall dist: 1.981, dist diff: -0.471, angle diff: -17.2, current angle: -14.3, start angle: 2.9, turn radius: 1.586
+current wall dist: 2.048, dist diff: -0.537, angle diff: -23.9, current angle: -21.0, start angle: 2.9, turn radius: 1.314
+current wall dist: 2.093, dist diff: -0.583, angle diff: -25.4, current angle: -22.6, start angle: 2.9, turn radius: 1.343
+current wall dist: 2.126, dist diff: -0.615, angle diff: -24.7, current angle: -21.8, start angle: 2.9, turn radius: 1.459
+current wall dist: 2.187, dist diff: -0.677, angle diff: -28.4, current angle: -25.5, start angle: 2.9, turn radius: 1.406
+current wall dist: 2.240, dist diff: -0.730, angle diff: -30.8, current angle: -27.9, start angle: 2.9, turn radius: 1.408
+Exception in Tkinter callback
+
+starting to drive: wall_dist: 1.543, wall_angle: 2.1 
+current wall dist: 1.555, dist diff: -0.012, angle diff: -3.5, current angle: -1.4, start angle: 2.1, turn radius: 0.190
+current wall dist: 1.584, dist diff: -0.041, angle diff: -6.1, current angle: -4.0, start angle: 2.1, turn radius: 0.382
+current wall dist: 1.688, dist diff: -0.144, angle diff: -13.7, current angle: -11.6, start angle: 2.1, turn radius: 0.605
+current wall dist: 1.766, dist diff: -0.223, angle diff: -18.6, current angle: -16.5, start angle: 2.1, turn radius: 0.695
+current wall dist: 1.806, dist diff: -0.263, angle diff: -23.0, current angle: -20.9, start angle: 2.1, turn radius: 0.667
+current wall dist: 1.897, dist diff: -0.354, angle diff: -24.5, current angle: -22.4, start angle: 2.1, turn radius: 0.847
+current wall dist: 1.957, dist diff: -0.414, angle diff: -31.8, current angle: -29.6, start angle: 2.1, turn radius: 0.779
+current wall dist: 1.992, dist diff: -0.448, angle diff: -34.2, current angle: -32.1, start angle: 2.1, turn radius: 0.788
+current wall dist: 2.075, dist diff: -0.532, angle diff: -41.6, current angle: -39.4, start angle: 2.1, turn radius: 0.791
+current wall dist: 2.132, dist diff: -0.588, angle diff: -44.4, current angle: -42.3, start angle: 2.1, turn radius: 0.828
+current wall dist: 2.206, dist diff: -0.663, angle diff: -48.9, current angle: -46.8, start angle: 2.1, turn radius: 0.866
+current wall dist: 2.265, dist diff: -0.721, angle diff: -54.2, current angle: -52.1, start angle: 2.1, turn radius: 0.873
+average turn radius: 0.693
+save_xml: item is found
+
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+	<node name="pid_controller" pkg="assignment8_velocity_pid_controller"
+		type="velocity_pid_controller.py" output="screen">
+	</node>
+
+</launch>
+

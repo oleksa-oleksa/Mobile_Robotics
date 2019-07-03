@@ -1,0 +1,23 @@
+ticks, distance were measured in the lab (car 128)
+average for 150:
+(207 + 212) / 2 = 209.5
+(2.10 + 2.00) / 2  = 2.05
+
+for command 250 average speed m/s is 0.17
+time 12 sec
+average 102 ticks for a command 150
+
+average for 200:
+(239 + 214) / 2 = 226.5
+(2.10 + 2.10) / 2  = 2.10
+time 7 sec
+for command 200 average speed m/s is 0.3
+average 107 ticks for a command 200
+
+average for 250:
+(244 + 238) / 2 = 241
+(2.15 + 2.12) / 2  = 2.135
+time 5 sec
+for command 250 average speed m/s is 0.427
+average 112 ticks for a command 250
+

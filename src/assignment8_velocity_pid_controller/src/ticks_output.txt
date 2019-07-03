@@ -1,0 +1,1 @@
+self.distance : 0.10, current_distance: 0.00, all_ticks: 0.00, time: 274.60self.distance : 0.10, current_distance: 0.00, all_ticks: 0.00, time: 97.32
